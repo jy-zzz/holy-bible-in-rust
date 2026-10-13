@@ -1,0 +1,9 @@
+[package]
+name = "rustament"
+version = "0.1.0"
+edition = "2021"
+description = "A complete Rust-style parody retelling of the Protestant Bible"
+
+[[bin]]
+name = "rustament"
+path = "rustament.rs"
