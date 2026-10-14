@@ -568,6 +568,11 @@ pub enum StoryError {
         book: &'static str,
         number: u16,
     },
+    ChapterOutOfRange {
+        book: &'static str,
+        number: u16,
+        max: u16,
+    },
     InvalidSegmentRange {
         book: Book,
         chapter: u16,
@@ -632,6 +637,10 @@ impl fmt::Display for StoryError {
             Self::EmptyChapter { book, number } => {
                 write!(formatter, "{book} {number} arrived without prose")
             }
+            Self::ChapterOutOfRange { book, number, max } => write!(
+                formatter,
+                "received {book} {number}, but that book has {max} chapters"
+            ),
             Self::InvalidSegmentRange {
                 book,
                 chapter,
@@ -776,6 +785,17 @@ impl Story {
 
         if lines.len() < 2 {
             return Err(StoryError::EmptyChapter { book, number });
+        }
+        let max_chapters = CANONICAL_VERSE_COUNTS
+            .get(book_index)
+            .map(|chapters| chapters.len() as u16)
+            .unwrap_or(0);
+        if number == 0 || number > max_chapters {
+            return Err(StoryError::ChapterOutOfRange {
+                book,
+                number,
+                max: max_chapters,
+            });
         }
 
         if let Some(previous) = self.chapters.last() {
@@ -1295,6 +1315,13 @@ mod tests {
             result,
             Err(StoryError::InvalidChapterOrder { .. })
         ));
+    }
+
+    #[test]
+    fn chapter_cursor_rejects_a_chapter_beyond_the_canonical_book() {
+        let mut story = Story::new();
+        let result = story.record_chapter("Genesis", 51, &["one", "two"]);
+        assert!(matches!(result, Err(StoryError::ChapterOutOfRange { .. })));
     }
 
     #[test]
