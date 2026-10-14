@@ -5,7 +5,7 @@
     {
       "name": "Genesis",
       "chapters": 50,
-      "file": "books/old-testament-pentateuch.rs",
+      "file": "books/genesis.rs",
       "verse_count": 1533,
       "verses": [
         31,
@@ -63,7 +63,7 @@
     {
       "name": "Exodus",
       "chapters": 40,
-      "file": "books/old-testament-pentateuch.rs",
+      "file": "books/exodus.rs",
       "verse_count": 1213,
       "verses": [
         22,
@@ -111,7 +111,7 @@
     {
       "name": "Leviticus",
       "chapters": 27,
-      "file": "books/old-testament-pentateuch.rs",
+      "file": "books/leviticus.rs",
       "verse_count": 859,
       "verses": [
         17,
@@ -146,7 +146,7 @@
     {
       "name": "Numbers",
       "chapters": 36,
-      "file": "books/old-testament-pentateuch.rs",
+      "file": "books/numbers.rs",
       "verse_count": 1288,
       "verses": [
         54,
@@ -190,7 +190,7 @@
     {
       "name": "Deuteronomy",
       "chapters": 34,
-      "file": "books/old-testament-pentateuch.rs",
+      "file": "books/deuteronomy.rs",
       "verse_count": 959,
       "verses": [
         46,
@@ -232,7 +232,7 @@
     {
       "name": "Joshua",
       "chapters": 24,
-      "file": "books/old-testament-history.rs",
+      "file": "books/joshua.rs",
       "verse_count": 658,
       "verses": [
         18,
@@ -264,7 +264,7 @@
     {
       "name": "Judges",
       "chapters": 21,
-      "file": "books/old-testament-history.rs",
+      "file": "books/judges.rs",
       "verse_count": 618,
       "verses": [
         36,
@@ -293,7 +293,7 @@
     {
       "name": "Ruth",
       "chapters": 4,
-      "file": "books/old-testament-history.rs",
+      "file": "books/ruth.rs",
       "verse_count": 85,
       "verses": [
         22,
@@ -305,7 +305,7 @@
     {
       "name": "1 Samuel",
       "chapters": 31,
-      "file": "books/old-testament-history.rs",
+      "file": "books/_1_samuel.rs",
       "verse_count": 810,
       "verses": [
         28,
@@ -344,7 +344,7 @@
     {
       "name": "2 Samuel",
       "chapters": 24,
-      "file": "books/old-testament-history.rs",
+      "file": "books/_2_samuel.rs",
       "verse_count": 695,
       "verses": [
         27,
@@ -376,7 +376,7 @@
     {
       "name": "1 Kings",
       "chapters": 22,
-      "file": "books/old-testament-history.rs",
+      "file": "books/_1_kings.rs",
       "verse_count": 816,
       "verses": [
         53,
@@ -406,7 +406,7 @@
     {
       "name": "2 Kings",
       "chapters": 25,
-      "file": "books/old-testament-history.rs",
+      "file": "books/_2_kings.rs",
       "verse_count": 719,
       "verses": [
         18,
@@ -439,7 +439,7 @@
     {
       "name": "1 Chronicles",
       "chapters": 29,
-      "file": "books/old-testament-history.rs",
+      "file": "books/_1_chronicles.rs",
       "verse_count": 942,
       "verses": [
         54,
@@ -476,7 +476,7 @@
     {
       "name": "2 Chronicles",
       "chapters": 36,
-      "file": "books/old-testament-history.rs",
+      "file": "books/_2_chronicles.rs",
       "verse_count": 822,
       "verses": [
         17,
@@ -520,7 +520,7 @@
     {
       "name": "Ezra",
       "chapters": 10,
-      "file": "books/old-testament-history.rs",
+      "file": "books/ezra.rs",
       "verse_count": 280,
       "verses": [
         11,
@@ -538,7 +538,7 @@
     {
       "name": "Nehemiah",
       "chapters": 13,
-      "file": "books/old-testament-history.rs",
+      "file": "books/nehemiah.rs",
       "verse_count": 406,
       "verses": [
         11,
@@ -559,7 +559,7 @@
     {
       "name": "Esther",
       "chapters": 10,
-      "file": "books/old-testament-history.rs",
+      "file": "books/esther.rs",
       "verse_count": 167,
       "verses": [
         22,
@@ -577,7 +577,7 @@
     {
       "name": "Job",
       "chapters": 42,
-      "file": "books/old-testament-wisdom.rs",
+      "file": "books/job.rs",
       "verse_count": 1070,
       "verses": [
         22,
@@ -627,7 +627,7 @@
     {
       "name": "Psalms",
       "chapters": 150,
-      "file": "books/old-testament-wisdom.rs",
+      "file": "books/psalms.rs",
       "verse_count": 2461,
       "verses": [
         6,
@@ -785,7 +785,7 @@
     {
       "name": "Proverbs",
       "chapters": 31,
-      "file": "books/old-testament-wisdom.rs",
+      "file": "books/proverbs.rs",
       "verse_count": 915,
       "verses": [
         33,
@@ -824,7 +824,7 @@
     {
       "name": "Ecclesiastes",
       "chapters": 12,
-      "file": "books/old-testament-wisdom.rs",
+      "file": "books/ecclesiastes.rs",
       "verse_count": 222,
       "verses": [
         18,
@@ -844,7 +844,7 @@
     {
       "name": "Song of Solomon",
       "chapters": 8,
-      "file": "books/old-testament-wisdom.rs",
+      "file": "books/song_of_solomon.rs",
       "verse_count": 117,
       "verses": [
         17,
@@ -860,7 +860,7 @@
     {
       "name": "Isaiah",
       "chapters": 66,
-      "file": "books/old-testament-major-prophets.rs",
+      "file": "books/isaiah.rs",
       "verse_count": 1292,
       "verses": [
         31,
@@ -934,7 +934,7 @@
     {
       "name": "Jeremiah",
       "chapters": 52,
-      "file": "books/old-testament-major-prophets.rs",
+      "file": "books/jeremiah.rs",
       "verse_count": 1364,
       "verses": [
         19,
@@ -994,7 +994,7 @@
     {
       "name": "Lamentations",
       "chapters": 5,
-      "file": "books/old-testament-major-prophets.rs",
+      "file": "books/lamentations.rs",
       "verse_count": 154,
       "verses": [
         22,
@@ -1007,7 +1007,7 @@
     {
       "name": "Ezekiel",
       "chapters": 48,
-      "file": "books/old-testament-major-prophets.rs",
+      "file": "books/ezekiel.rs",
       "verse_count": 1273,
       "verses": [
         28,
@@ -1063,7 +1063,7 @@
     {
       "name": "Daniel",
       "chapters": 12,
-      "file": "books/old-testament-major-prophets.rs",
+      "file": "books/daniel.rs",
       "verse_count": 357,
       "verses": [
         21,
@@ -1083,7 +1083,7 @@
     {
       "name": "Hosea",
       "chapters": 14,
-      "file": "books/old-testament-minor-prophets.rs",
+      "file": "books/hosea.rs",
       "verse_count": 197,
       "verses": [
         11,
@@ -1105,7 +1105,7 @@
     {
       "name": "Joel",
       "chapters": 3,
-      "file": "books/old-testament-minor-prophets.rs",
+      "file": "books/joel.rs",
       "verse_count": 73,
       "verses": [
         20,
@@ -1116,7 +1116,7 @@
     {
       "name": "Amos",
       "chapters": 9,
-      "file": "books/old-testament-minor-prophets.rs",
+      "file": "books/amos.rs",
       "verse_count": 146,
       "verses": [
         15,
@@ -1133,7 +1133,7 @@
     {
       "name": "Obadiah",
       "chapters": 1,
-      "file": "books/old-testament-minor-prophets.rs",
+      "file": "books/obadiah.rs",
       "verse_count": 21,
       "verses": [
         21
@@ -1142,7 +1142,7 @@
     {
       "name": "Jonah",
       "chapters": 4,
-      "file": "books/old-testament-minor-prophets.rs",
+      "file": "books/jonah.rs",
       "verse_count": 48,
       "verses": [
         17,
@@ -1154,7 +1154,7 @@
     {
       "name": "Micah",
       "chapters": 7,
-      "file": "books/old-testament-minor-prophets.rs",
+      "file": "books/micah.rs",
       "verse_count": 105,
       "verses": [
         16,
@@ -1169,7 +1169,7 @@
     {
       "name": "Nahum",
       "chapters": 3,
-      "file": "books/old-testament-minor-prophets.rs",
+      "file": "books/nahum.rs",
       "verse_count": 47,
       "verses": [
         15,
@@ -1180,7 +1180,7 @@
     {
       "name": "Habakkuk",
       "chapters": 3,
-      "file": "books/old-testament-minor-prophets.rs",
+      "file": "books/habakkuk.rs",
       "verse_count": 56,
       "verses": [
         17,
@@ -1191,7 +1191,7 @@
     {
       "name": "Zephaniah",
       "chapters": 3,
-      "file": "books/old-testament-minor-prophets.rs",
+      "file": "books/zephaniah.rs",
       "verse_count": 53,
       "verses": [
         18,
@@ -1202,7 +1202,7 @@
     {
       "name": "Haggai",
       "chapters": 2,
-      "file": "books/old-testament-minor-prophets.rs",
+      "file": "books/haggai.rs",
       "verse_count": 38,
       "verses": [
         15,
@@ -1212,7 +1212,7 @@
     {
       "name": "Zechariah",
       "chapters": 14,
-      "file": "books/old-testament-minor-prophets.rs",
+      "file": "books/zechariah.rs",
       "verse_count": 211,
       "verses": [
         21,
@@ -1234,7 +1234,7 @@
     {
       "name": "Malachi",
       "chapters": 4,
-      "file": "books/old-testament-minor-prophets.rs",
+      "file": "books/malachi.rs",
       "verse_count": 55,
       "verses": [
         14,
@@ -1246,7 +1246,7 @@
     {
       "name": "Matthew",
       "chapters": 28,
-      "file": "books/new-testament-gospels-acts.rs",
+      "file": "books/matthew.rs",
       "verse_count": 1071,
       "verses": [
         25,
@@ -1282,7 +1282,7 @@
     {
       "name": "Mark",
       "chapters": 16,
-      "file": "books/new-testament-gospels-acts.rs",
+      "file": "books/mark.rs",
       "verse_count": 678,
       "verses": [
         45,
@@ -1306,7 +1306,7 @@
     {
       "name": "Luke",
       "chapters": 24,
-      "file": "books/new-testament-gospels-acts.rs",
+      "file": "books/luke.rs",
       "verse_count": 1151,
       "verses": [
         80,
@@ -1338,7 +1338,7 @@
     {
       "name": "John",
       "chapters": 21,
-      "file": "books/new-testament-gospels-acts.rs",
+      "file": "books/john.rs",
       "verse_count": 879,
       "verses": [
         51,
@@ -1367,7 +1367,7 @@
     {
       "name": "Acts",
       "chapters": 28,
-      "file": "books/new-testament-gospels-acts.rs",
+      "file": "books/acts.rs",
       "verse_count": 1007,
       "verses": [
         26,
@@ -1403,7 +1403,7 @@
     {
       "name": "Romans",
       "chapters": 16,
-      "file": "books/new-testament-pauline.rs",
+      "file": "books/romans.rs",
       "verse_count": 433,
       "verses": [
         32,
@@ -1427,7 +1427,7 @@
     {
       "name": "1 Corinthians",
       "chapters": 16,
-      "file": "books/new-testament-pauline.rs",
+      "file": "books/_1_corinthians.rs",
       "verse_count": 437,
       "verses": [
         31,
@@ -1451,7 +1451,7 @@
     {
       "name": "2 Corinthians",
       "chapters": 13,
-      "file": "books/new-testament-pauline.rs",
+      "file": "books/_2_corinthians.rs",
       "verse_count": 257,
       "verses": [
         24,
@@ -1472,7 +1472,7 @@
     {
       "name": "Galatians",
       "chapters": 6,
-      "file": "books/new-testament-pauline.rs",
+      "file": "books/galatians.rs",
       "verse_count": 149,
       "verses": [
         24,
@@ -1486,7 +1486,7 @@
     {
       "name": "Ephesians",
       "chapters": 6,
-      "file": "books/new-testament-pauline.rs",
+      "file": "books/ephesians.rs",
       "verse_count": 155,
       "verses": [
         23,
@@ -1500,7 +1500,7 @@
     {
       "name": "Philippians",
       "chapters": 4,
-      "file": "books/new-testament-pauline.rs",
+      "file": "books/philippians.rs",
       "verse_count": 104,
       "verses": [
         30,
@@ -1512,7 +1512,7 @@
     {
       "name": "Colossians",
       "chapters": 4,
-      "file": "books/new-testament-pauline.rs",
+      "file": "books/colossians.rs",
       "verse_count": 95,
       "verses": [
         29,
@@ -1524,7 +1524,7 @@
     {
       "name": "1 Thessalonians",
       "chapters": 5,
-      "file": "books/new-testament-pauline.rs",
+      "file": "books/_1_thessalonians.rs",
       "verse_count": 89,
       "verses": [
         10,
@@ -1537,7 +1537,7 @@
     {
       "name": "2 Thessalonians",
       "chapters": 3,
-      "file": "books/new-testament-pauline.rs",
+      "file": "books/_2_thessalonians.rs",
       "verse_count": 47,
       "verses": [
         12,
@@ -1548,7 +1548,7 @@
     {
       "name": "1 Timothy",
       "chapters": 6,
-      "file": "books/new-testament-pauline.rs",
+      "file": "books/_1_timothy.rs",
       "verse_count": 113,
       "verses": [
         20,
@@ -1562,7 +1562,7 @@
     {
       "name": "2 Timothy",
       "chapters": 4,
-      "file": "books/new-testament-pauline.rs",
+      "file": "books/_2_timothy.rs",
       "verse_count": 83,
       "verses": [
         18,
@@ -1574,7 +1574,7 @@
     {
       "name": "Titus",
       "chapters": 3,
-      "file": "books/new-testament-pauline.rs",
+      "file": "books/titus.rs",
       "verse_count": 46,
       "verses": [
         16,
@@ -1585,7 +1585,7 @@
     {
       "name": "Philemon",
       "chapters": 1,
-      "file": "books/new-testament-pauline.rs",
+      "file": "books/philemon.rs",
       "verse_count": 25,
       "verses": [
         25
@@ -1594,7 +1594,7 @@
     {
       "name": "Hebrews",
       "chapters": 13,
-      "file": "books/new-testament-general-revelation.rs",
+      "file": "books/hebrews.rs",
       "verse_count": 303,
       "verses": [
         14,
@@ -1615,7 +1615,7 @@
     {
       "name": "James",
       "chapters": 5,
-      "file": "books/new-testament-general-revelation.rs",
+      "file": "books/james.rs",
       "verse_count": 108,
       "verses": [
         27,
@@ -1628,7 +1628,7 @@
     {
       "name": "1 Peter",
       "chapters": 5,
-      "file": "books/new-testament-general-revelation.rs",
+      "file": "books/_1_peter.rs",
       "verse_count": 105,
       "verses": [
         25,
@@ -1641,7 +1641,7 @@
     {
       "name": "2 Peter",
       "chapters": 3,
-      "file": "books/new-testament-general-revelation.rs",
+      "file": "books/_2_peter.rs",
       "verse_count": 61,
       "verses": [
         21,
@@ -1652,7 +1652,7 @@
     {
       "name": "1 John",
       "chapters": 5,
-      "file": "books/new-testament-general-revelation.rs",
+      "file": "books/_1_john.rs",
       "verse_count": 105,
       "verses": [
         10,
@@ -1665,7 +1665,7 @@
     {
       "name": "2 John",
       "chapters": 1,
-      "file": "books/new-testament-general-revelation.rs",
+      "file": "books/_2_john.rs",
       "verse_count": 13,
       "verses": [
         13
@@ -1674,7 +1674,7 @@
     {
       "name": "3 John",
       "chapters": 1,
-      "file": "books/new-testament-general-revelation.rs",
+      "file": "books/_3_john.rs",
       "verse_count": 14,
       "verses": [
         14
@@ -1683,7 +1683,7 @@
     {
       "name": "Jude",
       "chapters": 1,
-      "file": "books/new-testament-general-revelation.rs",
+      "file": "books/jude.rs",
       "verse_count": 25,
       "verses": [
         25
@@ -1692,7 +1692,7 @@
     {
       "name": "Revelation",
       "chapters": 22,
-      "file": "books/new-testament-general-revelation.rs",
+      "file": "books/revelation.rs",
       "verse_count": 404,
       "verses": [
         20,

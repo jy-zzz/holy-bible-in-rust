@@ -5,75 +5,205 @@ macro_rules! chapter {
     }};
 }
 
-#[macro_export]
-macro_rules! meaning {
-    (
-        $genre:expr,
-        $actor:expr,
-        $action:expr,
-        $focus:expr,
-        $register:expr,
-        $rust_form:expr,
-        $($signal:expr),+
-        $(,)?
-    ) => {
-        $crate::Meaning {
-            genre: $genre,
-            actor: $actor,
-            action: $action,
-            focus: $focus,
-            register: $register,
-            rust_form: $rust_form,
-            signals: &[$($signal),+],
-        }
-    };
-}
-
-#[macro_export]
-macro_rules! verse {
-    ($story:expr, $book:expr, $chapter:literal, $number:literal, $meaning:expr $(,)?) => {{
-        $story.record_verse($crate::Verse {
-            book: $book,
-            chapter: $chapter,
-            number: $number,
-            meaning: $meaning,
-        })?;
-    }};
-}
-
-#[path = "books/new-testament-general-revelation.rs"]
-mod new_testament_general_revelation;
-#[path = "books/new-testament-gospels-acts.rs"]
-mod new_testament_gospels_acts;
-#[path = "books/new-testament-pauline.rs"]
-mod new_testament_pauline;
-#[path = "books/old-testament-history.rs"]
-mod old_testament_history;
-#[path = "books/old-testament-major-prophets.rs"]
-mod old_testament_major_prophets;
-#[path = "books/old-testament-minor-prophets.rs"]
-mod old_testament_minor_prophets;
-#[path = "books/old-testament-pentateuch.rs"]
-mod old_testament_pentateuch;
-#[path = "books/old-testament-wisdom.rs"]
-mod old_testament_wisdom;
+#[rustfmt::skip]
+#[path = "books/genesis.rs"]
+mod book_genesis;
+#[rustfmt::skip]
+#[path = "books/exodus.rs"]
+mod book_exodus;
+#[rustfmt::skip]
+#[path = "books/leviticus.rs"]
+mod book_leviticus;
+#[rustfmt::skip]
+#[path = "books/numbers.rs"]
+mod book_numbers;
+#[rustfmt::skip]
+#[path = "books/deuteronomy.rs"]
+mod book_deuteronomy;
+#[rustfmt::skip]
+#[path = "books/joshua.rs"]
+mod book_joshua;
+#[rustfmt::skip]
+#[path = "books/judges.rs"]
+mod book_judges;
+#[rustfmt::skip]
+#[path = "books/ruth.rs"]
+mod book_ruth;
+#[rustfmt::skip]
+#[path = "books/_1_samuel.rs"]
+mod book_1_samuel;
+#[rustfmt::skip]
+#[path = "books/_2_samuel.rs"]
+mod book_2_samuel;
+#[rustfmt::skip]
+#[path = "books/_1_kings.rs"]
+mod book_1_kings;
+#[rustfmt::skip]
+#[path = "books/_2_kings.rs"]
+mod book_2_kings;
+#[rustfmt::skip]
+#[path = "books/_1_chronicles.rs"]
+mod book_1_chronicles;
+#[rustfmt::skip]
+#[path = "books/_2_chronicles.rs"]
+mod book_2_chronicles;
+#[rustfmt::skip]
+#[path = "books/ezra.rs"]
+mod book_ezra;
+#[rustfmt::skip]
+#[path = "books/nehemiah.rs"]
+mod book_nehemiah;
+#[rustfmt::skip]
+#[path = "books/esther.rs"]
+mod book_esther;
+#[rustfmt::skip]
+#[path = "books/job.rs"]
+mod book_job;
+#[rustfmt::skip]
+#[path = "books/psalms.rs"]
+mod book_psalms;
+#[rustfmt::skip]
+#[path = "books/proverbs.rs"]
+mod book_proverbs;
+#[rustfmt::skip]
+#[path = "books/ecclesiastes.rs"]
+mod book_ecclesiastes;
+#[rustfmt::skip]
+#[path = "books/song_of_solomon.rs"]
+mod book_song_of_solomon;
+#[rustfmt::skip]
+#[path = "books/isaiah.rs"]
+mod book_isaiah;
+#[rustfmt::skip]
+#[path = "books/jeremiah.rs"]
+mod book_jeremiah;
+#[rustfmt::skip]
+#[path = "books/lamentations.rs"]
+mod book_lamentations;
+#[rustfmt::skip]
+#[path = "books/ezekiel.rs"]
+mod book_ezekiel;
+#[rustfmt::skip]
+#[path = "books/daniel.rs"]
+mod book_daniel;
+#[rustfmt::skip]
+#[path = "books/hosea.rs"]
+mod book_hosea;
+#[rustfmt::skip]
+#[path = "books/joel.rs"]
+mod book_joel;
+#[rustfmt::skip]
+#[path = "books/amos.rs"]
+mod book_amos;
+#[rustfmt::skip]
+#[path = "books/obadiah.rs"]
+mod book_obadiah;
+#[rustfmt::skip]
+#[path = "books/jonah.rs"]
+mod book_jonah;
+#[rustfmt::skip]
+#[path = "books/micah.rs"]
+mod book_micah;
+#[rustfmt::skip]
+#[path = "books/nahum.rs"]
+mod book_nahum;
+#[rustfmt::skip]
+#[path = "books/habakkuk.rs"]
+mod book_habakkuk;
+#[rustfmt::skip]
+#[path = "books/zephaniah.rs"]
+mod book_zephaniah;
+#[rustfmt::skip]
+#[path = "books/haggai.rs"]
+mod book_haggai;
+#[rustfmt::skip]
+#[path = "books/zechariah.rs"]
+mod book_zechariah;
+#[rustfmt::skip]
+#[path = "books/malachi.rs"]
+mod book_malachi;
+#[rustfmt::skip]
+#[path = "books/matthew.rs"]
+mod book_matthew;
+#[rustfmt::skip]
+#[path = "books/mark.rs"]
+mod book_mark;
+#[rustfmt::skip]
+#[path = "books/luke.rs"]
+mod book_luke;
+#[rustfmt::skip]
+#[path = "books/john.rs"]
+mod book_john;
+#[rustfmt::skip]
+#[path = "books/acts.rs"]
+mod book_acts;
+#[rustfmt::skip]
+#[path = "books/romans.rs"]
+mod book_romans;
+#[rustfmt::skip]
+#[path = "books/_1_corinthians.rs"]
+mod book_1_corinthians;
+#[rustfmt::skip]
+#[path = "books/_2_corinthians.rs"]
+mod book_2_corinthians;
+#[rustfmt::skip]
+#[path = "books/galatians.rs"]
+mod book_galatians;
+#[rustfmt::skip]
+#[path = "books/ephesians.rs"]
+mod book_ephesians;
+#[rustfmt::skip]
+#[path = "books/philippians.rs"]
+mod book_philippians;
+#[rustfmt::skip]
+#[path = "books/colossians.rs"]
+mod book_colossians;
+#[rustfmt::skip]
+#[path = "books/_1_thessalonians.rs"]
+mod book_1_thessalonians;
+#[rustfmt::skip]
+#[path = "books/_2_thessalonians.rs"]
+mod book_2_thessalonians;
+#[rustfmt::skip]
+#[path = "books/_1_timothy.rs"]
+mod book_1_timothy;
+#[rustfmt::skip]
+#[path = "books/_2_timothy.rs"]
+mod book_2_timothy;
+#[rustfmt::skip]
+#[path = "books/titus.rs"]
+mod book_titus;
+#[rustfmt::skip]
+#[path = "books/philemon.rs"]
+mod book_philemon;
+#[rustfmt::skip]
+#[path = "books/hebrews.rs"]
+mod book_hebrews;
+#[rustfmt::skip]
+#[path = "books/james.rs"]
+mod book_james;
+#[rustfmt::skip]
+#[path = "books/_1_peter.rs"]
+mod book_1_peter;
+#[rustfmt::skip]
+#[path = "books/_2_peter.rs"]
+mod book_2_peter;
+#[rustfmt::skip]
+#[path = "books/_1_john.rs"]
+mod book_1_john;
+#[rustfmt::skip]
+#[path = "books/_2_john.rs"]
+mod book_2_john;
+#[rustfmt::skip]
+#[path = "books/_3_john.rs"]
+mod book_3_john;
+#[rustfmt::skip]
+#[path = "books/jude.rs"]
+mod book_jude;
+#[rustfmt::skip]
+#[path = "books/revelation.rs"]
+mod book_revelation;
 mod verse_counts;
-#[path = "verses/new-testament-general-revelation.rs"]
-mod verses_new_testament_general_revelation;
-#[path = "verses/new-testament-gospels-acts.rs"]
-mod verses_new_testament_gospels_acts;
-#[path = "verses/new-testament-pauline.rs"]
-mod verses_new_testament_pauline;
-#[path = "verses/old-testament-history.rs"]
-mod verses_old_testament_history;
-#[path = "verses/old-testament-major-prophets.rs"]
-mod verses_old_testament_major_prophets;
-#[path = "verses/old-testament-minor-prophets.rs"]
-mod verses_old_testament_minor_prophets;
-#[path = "verses/old-testament-pentateuch.rs"]
-mod verses_old_testament_pentateuch;
-#[path = "verses/old-testament-wisdom.rs"]
-mod verses_old_testament_wisdom;
 
 use std::error::Error;
 use std::fmt;
@@ -305,90 +435,6 @@ impl fmt::Display for Book {
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub enum Genre {
-    Narrative,
-    Law,
-    Wisdom,
-    Prophecy,
-    Gospel,
-    Letter,
-    Vision,
-}
-
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub enum Actor {
-    God,
-    Humanity,
-    Community,
-    Witness,
-    King,
-    Priest,
-    Messenger,
-    Spirit,
-    Messiah,
-}
-
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub enum Action {
-    Create,
-    Generate,
-    Die,
-    Rise,
-    Heal,
-    Suffer,
-    Deliver,
-    Judge,
-    Restore,
-    Command,
-    Worship,
-    Praise,
-    Pray,
-    Reveal,
-    Teach,
-    Speak,
-    Move,
-    Provide,
-    Rule,
-    Love,
-    Trust,
-    Fail,
-    Witness,
-}
-
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub enum Focus {
-    Cosmos,
-    Covenant,
-    Law,
-    Temple,
-    Kingdom,
-    Household,
-    Justice,
-    Wisdom,
-    Spirit,
-    Adversary,
-    Messiah,
-    Renewal,
-    Israel,
-    Nations,
-    Community,
-}
-
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub enum Register {
-    Narration,
-    Instruction,
-    Promise,
-    Warning,
-    Petition,
-    Vision,
-    Praise,
-    Lament,
-    Genealogy,
-    Wisdom,
-}
-
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum RustForm {
     Construct,
     Move,
@@ -407,64 +453,26 @@ pub enum RustForm {
     Expression,
 }
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub enum Signal {
-    Beginning,
-    Separation,
-    Naming,
-    Genealogy,
-    Covenant,
-    Exodus,
-    Wilderness,
-    Land,
-    Kingship,
-    Exile,
-    Return,
-    Temple,
-    Sacrifice,
-    Justice,
-    Mercy,
-    Wisdom,
-    Praise,
-    Lament,
-    Prophecy,
-    Messenger,
-    Healing,
-    Hospitality,
-    Conflict,
-    Persecution,
-    Resurrection,
-    Mission,
-    Church,
-    Judgment,
-    Renewal,
-    Provision,
-    Prayer,
-    Marriage,
-    Birth,
-    Death,
-    Famine,
-    Harvest,
-    Law,
-    Spirit,
-    Baptism,
-    Faith,
-    Love,
-    Neighbor,
-    Adversary,
-    Vision,
-    Witness,
-}
-
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub struct Meaning {
-    pub genre: Genre,
-    pub actor: Actor,
-    pub action: Action,
-    pub focus: Focus,
-    pub register: Register,
-    pub rust_form: RustForm,
-    pub signals: &'static [Signal],
+impl fmt::Display for RustForm {
+    fn fmt(&self, formatter: &mut fmt::Formatter<'_>) -> fmt::Result {
+        formatter.write_str(match self {
+            Self::Construct => "construct",
+            Self::Move => "move",
+            Self::Drop => "drop",
+            Self::Reinitialize => "reinitialize",
+            Self::Guard => "guard",
+            Self::Result => "result",
+            Self::Match => "match",
+            Self::Call => "call",
+            Self::Trait => "trait",
+            Self::Panic => "panic",
+            Self::Await => "await",
+            Self::Borrow => "borrow",
+            Self::Return => "return",
+            Self::Iterate => "iterate",
+            Self::Expression => "expression",
+        })
+    }
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -502,7 +510,7 @@ impl StoryState {
 
 impl fmt::Display for StoryState {
     fn fmt(&self, formatter: &mut fmt::Formatter<'_>) -> fmt::Result {
-        let label = match self {
+        formatter.write_str(match self {
             Self::Uninitialized => "uninitialized",
             Self::Garden => "garden",
             Self::Fractured => "fractured",
@@ -514,8 +522,7 @@ impl fmt::Display for StoryState {
             Self::Risen => "risen",
             Self::Sent => "sent",
             Self::Renewed => "renewed",
-        };
-        formatter.write_str(label)
+        })
     }
 }
 
@@ -528,11 +535,25 @@ pub struct Chapter {
 }
 
 #[derive(Debug)]
-pub struct Verse {
+pub struct RustStep {
     pub book: Book,
     pub chapter: u16,
-    pub number: u16,
-    pub meaning: Meaning,
+    pub verse: u16,
+    pub form: RustForm,
+    pub subject: &'static str,
+    pub objects: &'static [&'static str],
+    pub tokens: &'static [&'static str],
+}
+
+#[derive(Debug)]
+pub struct VerseSegment {
+    pub book: Book,
+    pub chapter: u16,
+    pub start: u16,
+    pub end: u16,
+    pub summary: &'static str,
+    pub context: &'static [&'static str],
+    pub steps: Vec<RustStep>,
 }
 
 #[derive(Debug)]
@@ -547,11 +568,36 @@ pub enum StoryError {
         book: &'static str,
         number: u16,
     },
-    InvalidVerseOrder {
+    InvalidSegmentRange {
         book: Book,
         chapter: u16,
-        number: u16,
+        start: u16,
+        end: u16,
+    },
+    InvalidSegmentVerseOrder {
+        book: Book,
+        chapter: u16,
+        verse: u16,
+        expected: u16,
+    },
+    MissingSegmentVerse {
+        book: Book,
+        chapter: u16,
+        start: u16,
+        end: u16,
+        found: usize,
+    },
+    SegmentOutOfOrder {
+        book: Book,
+        chapter: u16,
+        start: u16,
+        end: u16,
         expected: String,
+    },
+    EmptyStep {
+        book: Book,
+        chapter: u16,
+        verse: u16,
     },
     VerseOutOfRange {
         book: Book,
@@ -586,14 +632,48 @@ impl fmt::Display for StoryError {
             Self::EmptyChapter { book, number } => {
                 write!(formatter, "{book} {number} arrived without prose")
             }
-            Self::InvalidVerseOrder {
+            Self::InvalidSegmentRange {
                 book,
                 chapter,
-                number,
+                start,
+                end,
+            } => write!(formatter, "invalid segment {book} {chapter}:{start}-{end}"),
+            Self::InvalidSegmentVerseOrder {
+                book,
+                chapter,
+                verse,
                 expected,
             } => write!(
                 formatter,
-                "received {book} {chapter}:{number}, but the verse cursor expected {expected}"
+                "segment received {book} {chapter}:{verse}, expected verse {expected}"
+            ),
+            Self::MissingSegmentVerse {
+                book,
+                chapter,
+                start,
+                end,
+                found,
+            } => write!(
+                formatter,
+                "segment {book} {chapter}:{start}-{end} contains {found} steps"
+            ),
+            Self::SegmentOutOfOrder {
+                book,
+                chapter,
+                start,
+                end,
+                expected,
+            } => write!(
+                formatter,
+                "received segment {book} {chapter}:{start}-{end}, expected {expected}"
+            ),
+            Self::EmptyStep {
+                book,
+                chapter,
+                verse,
+            } => write!(
+                formatter,
+                "{book} {chapter}:{verse} has no translated operands"
             ),
             Self::VerseOutOfRange {
                 book,
@@ -650,9 +730,21 @@ pub struct BorrowedPeople<'a> {
 pub struct Story {
     state: StoryState,
     chapters: Vec<Chapter>,
-    verses: Vec<Verse>,
+    segments: Vec<VerseSegment>,
     people: Vec<String>,
     covenant: Option<OwnedCovenant>,
+}
+
+pub struct Segment<'a> {
+    story: &'a mut Story,
+    book: Book,
+    chapter: u16,
+    start: u16,
+    end: u16,
+    summary: &'static str,
+    context: &'static [&'static str],
+    next: u16,
+    steps: Vec<RustStep>,
 }
 
 impl Story {
@@ -660,7 +752,7 @@ impl Story {
         Self {
             state: StoryState::Uninitialized,
             chapters: Vec::new(),
-            verses: Vec::new(),
+            segments: Vec::new(),
             people: vec![
                 "humanity".to_owned(),
                 "Israel".to_owned(),
@@ -737,68 +829,127 @@ impl Story {
         Ok(())
     }
 
-    pub(crate) fn record_verse(&mut self, verse: Verse) -> Result<(), StoryError> {
-        let book_index = verse.book.index();
-        let chapter_index = usize::from(verse.chapter.saturating_sub(1));
+    pub(crate) fn segment(
+        &mut self,
+        book: Book,
+        chapter: u16,
+        start: u16,
+        end: u16,
+        summary: &'static str,
+        context: &'static [&'static str],
+    ) -> Segment<'_> {
+        Segment {
+            story: self,
+            book,
+            chapter,
+            start,
+            end,
+            summary,
+            context,
+            next: start,
+            steps: Vec::with_capacity(usize::from(end.saturating_sub(start)) + 1),
+        }
+    }
+
+    fn record_segment(&mut self, segment: VerseSegment) -> Result<(), StoryError> {
         let max = CANONICAL_VERSE_COUNTS
-            .get(book_index)
-            .and_then(|chapters| chapters.get(chapter_index))
+            .get(segment.book.index())
+            .and_then(|chapters| chapters.get(usize::from(segment.chapter.saturating_sub(1))))
             .copied()
             .ok_or(StoryError::VerseOutOfRange {
-                book: verse.book,
-                chapter: verse.chapter,
-                number: verse.number,
+                book: segment.book,
+                chapter: segment.chapter,
+                number: segment.start,
                 max: 0,
             })?;
 
-        if verse.number == 0 || verse.number > max {
-            return Err(StoryError::VerseOutOfRange {
-                book: verse.book,
-                chapter: verse.chapter,
-                number: verse.number,
-                max,
+        if segment.start == 0 || segment.start > segment.end || segment.end > max {
+            return Err(StoryError::InvalidSegmentRange {
+                book: segment.book,
+                chapter: segment.chapter,
+                start: segment.start,
+                end: segment.end,
             });
         }
 
-        if let Some(previous) = self.verses.last() {
-            let expected = if previous.book == verse.book && previous.chapter == verse.chapter {
-                format!("{} {}:{}", verse.book, verse.chapter, previous.number + 1)
-            } else if previous.book == verse.book {
-                format!("{} {}:1", verse.book, previous.chapter + 1)
-            } else {
-                let next_book = CANONICAL_BOOKS
-                    .get(previous.book.index() + 1)
-                    .copied()
-                    .unwrap_or("end of canon");
-                format!("{next_book} 1:1")
-            };
-            let in_order = if previous.book == verse.book && previous.chapter == verse.chapter {
-                verse.number == previous.number + 1
-            } else if previous.book == verse.book {
-                verse.chapter == previous.chapter + 1 && verse.number == 1
-            } else {
-                verse.book.index() == previous.book.index() + 1
-                    && verse.chapter == 1
-                    && verse.number == 1
-            };
+        let expected_steps = usize::from(segment.end - segment.start + 1);
+        if segment.steps.len() != expected_steps {
+            return Err(StoryError::MissingSegmentVerse {
+                book: segment.book,
+                chapter: segment.chapter,
+                start: segment.start,
+                end: segment.end,
+                found: segment.steps.len(),
+            });
+        }
+
+        if let Some(previous) = self.segments.last() {
+            let previous_step = previous
+                .steps
+                .last()
+                .expect("committed segments are non-empty");
+            let expected =
+                if previous_step.book == segment.book && previous_step.chapter == segment.chapter {
+                    format!(
+                        "{} {}:{}",
+                        segment.book,
+                        segment.chapter,
+                        previous_step.verse + 1
+                    )
+                } else if previous_step.book == segment.book {
+                    format!("{} {}:1", segment.book, previous_step.chapter + 1)
+                } else {
+                    let next_book = CANONICAL_BOOKS
+                        .get(previous_step.book.index() + 1)
+                        .copied()
+                        .unwrap_or("end of canon");
+                    format!("{next_book} 1:1")
+                };
+            let in_order =
+                if previous_step.book == segment.book && previous_step.chapter == segment.chapter {
+                    segment.start == previous_step.verse + 1
+                } else if previous_step.book == segment.book {
+                    segment.chapter == previous_step.chapter + 1 && segment.start == 1
+                } else {
+                    segment.book.index() == previous_step.book.index() + 1
+                        && segment.chapter == 1
+                        && segment.start == 1
+                };
             if !in_order {
-                return Err(StoryError::InvalidVerseOrder {
-                    book: verse.book,
-                    chapter: verse.chapter,
-                    number: verse.number,
+                return Err(StoryError::SegmentOutOfOrder {
+                    book: segment.book,
+                    chapter: segment.chapter,
+                    start: segment.start,
+                    end: segment.end,
                     expected,
                 });
             }
-        } else if verse.book != Book::Genesis || verse.chapter != 1 || verse.number != 1 {
-            return Err(StoryError::InvalidVerseOrder {
-                book: verse.book,
-                chapter: verse.chapter,
-                number: verse.number,
+        } else if segment.book != Book::Genesis || segment.chapter != 1 || segment.start != 1 {
+            return Err(StoryError::SegmentOutOfOrder {
+                book: segment.book,
+                chapter: segment.chapter,
+                start: segment.start,
+                end: segment.end,
                 expected: "Genesis 1:1".to_owned(),
             });
         }
 
-        self.verses.push(verse);
+        for (offset, step) in segment.steps.iter().enumerate() {
+            let expected_verse = segment.start + offset as u16;
+            if step.book != segment.book
+                || step.chapter != segment.chapter
+                || step.verse != expected_verse
+            {
+                return Err(StoryError::InvalidSegmentVerseOrder {
+                    book: segment.book,
+                    chapter: segment.chapter,
+                    verse: step.verse,
+                    expected: expected_verse,
+                });
+            }
+        }
+
+        self.segments.push(segment);
         Ok(())
     }
 
@@ -828,21 +979,21 @@ impl Story {
         }
     }
 
-    fn chapters(&self) -> &[Chapter] {
-        &self.chapters
-    }
-
-    fn verses(&self) -> &[Verse] {
-        &self.verses
+    fn verse_count(&self) -> usize {
+        self.segments
+            .iter()
+            .map(|segment| segment.steps.len())
+            .sum()
     }
 
     fn render(&self) {
         println!("THE RUSTAMENT");
         println!("==============");
         println!(
-            "A complete, non-devotional Rust parody: {} chapters and {} verses, final state `{}`.",
+            "A complete, non-devotional Rust parody: {} chapters, {} verse steps in {} segments, final state `{:?}`.",
             self.chapters.len(),
-            self.verses.len(),
+            self.verse_count(),
+            self.segments.len(),
             self.state
         );
         if let Some(covenant) = &self.covenant {
@@ -853,7 +1004,7 @@ impl Story {
             );
         }
 
-        for chapter in self.chapters() {
+        for chapter in &self.chapters {
             println!(
                 "\n// CHAPTER {} {} [{}]",
                 chapter.book, chapter.number, chapter.state
@@ -863,14 +1014,124 @@ impl Story {
             }
         }
 
-        println!("\nVERSE-LEVEL SEMANTIC LEDGER");
-        println!("===========================");
-        for verse in self.verses() {
+        println!("\nRUST SEGMENTS");
+        println!("=============");
+        for segment in &self.segments {
             println!(
-                "{} {}:{} => {:?}",
-                verse.book, verse.chapter, verse.number, verse.meaning
+                "\n// {} {}:{}-{} :: {} [{}]",
+                segment.book,
+                segment.chapter,
+                segment.start,
+                segment.end,
+                segment.summary,
+                segment.context.join(", ")
             );
+            for step in &segment.steps {
+                println!(
+                    "{}:{} {} {} -> {} | {}",
+                    step.chapter,
+                    step.verse,
+                    step.form,
+                    step.subject,
+                    step.objects.join(", "),
+                    step.tokens.join(", ")
+                );
+            }
         }
+    }
+}
+
+macro_rules! segment_operations {
+    ($($method:ident => $form:ident),+ $(,)?) => {
+        $(
+            pub(crate) fn $method(
+                &mut self,
+                verse: u16,
+                subject: &'static str,
+                objects: &'static [&'static str],
+                tokens: &'static [&'static str],
+            ) -> Result<(), StoryError> {
+                self.step(verse, RustForm::$form, subject, objects, tokens)
+            }
+        )+
+    };
+}
+
+impl<'a> Segment<'a> {
+    fn step(
+        &mut self,
+        verse: u16,
+        form: RustForm,
+        subject: &'static str,
+        objects: &'static [&'static str],
+        tokens: &'static [&'static str],
+    ) -> Result<(), StoryError> {
+        if verse != self.next {
+            return Err(StoryError::InvalidSegmentVerseOrder {
+                book: self.book,
+                chapter: self.chapter,
+                verse,
+                expected: self.next,
+            });
+        }
+        if subject.is_empty() || objects.is_empty() || tokens.is_empty() {
+            return Err(StoryError::EmptyStep {
+                book: self.book,
+                chapter: self.chapter,
+                verse,
+            });
+        }
+        self.steps.push(RustStep {
+            book: self.book,
+            chapter: self.chapter,
+            verse,
+            form,
+            subject,
+            objects,
+            tokens,
+        });
+        self.next += 1;
+        Ok(())
+    }
+
+    segment_operations!(
+        construct => Construct,
+        move_value => Move,
+        drop_value => Drop,
+        reinitialize => Reinitialize,
+        guard => Guard,
+        result => Result,
+        match_value => Match,
+        call => Call,
+        trait_bound => Trait,
+        panic => Panic,
+        await_value => Await,
+        borrow => Borrow,
+        return_value => Return,
+        iterate => Iterate,
+        expression => Expression,
+    );
+
+    pub(crate) fn commit(self) -> Result<(), StoryError> {
+        if self.next != self.end.saturating_add(1) {
+            return Err(StoryError::MissingSegmentVerse {
+                book: self.book,
+                chapter: self.chapter,
+                start: self.start,
+                end: self.end,
+                found: self.steps.len(),
+            });
+        }
+        let story = self.story;
+        story.record_segment(VerseSegment {
+            book: self.book,
+            chapter: self.chapter,
+            start: self.start,
+            end: self.end,
+            summary: self.summary,
+            context: self.context,
+            steps: self.steps,
+        })
     }
 }
 
@@ -897,29 +1158,79 @@ pub fn whole_story() -> Result<Story, StoryError> {
         });
     }
 
-    old_testament_pentateuch::apply(&mut story)?;
-    old_testament_history::apply(&mut story)?;
-    old_testament_wisdom::apply(&mut story)?;
-    old_testament_major_prophets::apply(&mut story)?;
-    old_testament_minor_prophets::apply(&mut story)?;
-    new_testament_gospels_acts::apply(&mut story)?;
-    new_testament_pauline::apply(&mut story)?;
-    new_testament_general_revelation::apply(&mut story)?;
-    verses_old_testament_pentateuch::apply(&mut story)?;
-    verses_old_testament_history::apply(&mut story)?;
-    verses_old_testament_wisdom::apply(&mut story)?;
-    verses_old_testament_major_prophets::apply(&mut story)?;
-    verses_old_testament_minor_prophets::apply(&mut story)?;
-    verses_new_testament_gospels_acts::apply(&mut story)?;
-    verses_new_testament_pauline::apply(&mut story)?;
-    verses_new_testament_general_revelation::apply(&mut story)?;
+    book_genesis::apply(&mut story)?;
+    book_exodus::apply(&mut story)?;
+    book_leviticus::apply(&mut story)?;
+    book_numbers::apply(&mut story)?;
+    book_deuteronomy::apply(&mut story)?;
+    book_joshua::apply(&mut story)?;
+    book_judges::apply(&mut story)?;
+    book_ruth::apply(&mut story)?;
+    book_1_samuel::apply(&mut story)?;
+    book_2_samuel::apply(&mut story)?;
+    book_1_kings::apply(&mut story)?;
+    book_2_kings::apply(&mut story)?;
+    book_1_chronicles::apply(&mut story)?;
+    book_2_chronicles::apply(&mut story)?;
+    book_ezra::apply(&mut story)?;
+    book_nehemiah::apply(&mut story)?;
+    book_esther::apply(&mut story)?;
+    book_job::apply(&mut story)?;
+    book_psalms::apply(&mut story)?;
+    book_proverbs::apply(&mut story)?;
+    book_ecclesiastes::apply(&mut story)?;
+    book_song_of_solomon::apply(&mut story)?;
+    book_isaiah::apply(&mut story)?;
+    book_jeremiah::apply(&mut story)?;
+    book_lamentations::apply(&mut story)?;
+    book_ezekiel::apply(&mut story)?;
+    book_daniel::apply(&mut story)?;
+    book_hosea::apply(&mut story)?;
+    book_joel::apply(&mut story)?;
+    book_amos::apply(&mut story)?;
+    book_obadiah::apply(&mut story)?;
+    book_jonah::apply(&mut story)?;
+    book_micah::apply(&mut story)?;
+    book_nahum::apply(&mut story)?;
+    book_habakkuk::apply(&mut story)?;
+    book_zephaniah::apply(&mut story)?;
+    book_haggai::apply(&mut story)?;
+    book_zechariah::apply(&mut story)?;
+    book_malachi::apply(&mut story)?;
+    book_matthew::apply(&mut story)?;
+    book_mark::apply(&mut story)?;
+    book_luke::apply(&mut story)?;
+    book_john::apply(&mut story)?;
+    book_acts::apply(&mut story)?;
+    book_romans::apply(&mut story)?;
+    book_1_corinthians::apply(&mut story)?;
+    book_2_corinthians::apply(&mut story)?;
+    book_galatians::apply(&mut story)?;
+    book_ephesians::apply(&mut story)?;
+    book_philippians::apply(&mut story)?;
+    book_colossians::apply(&mut story)?;
+    book_1_thessalonians::apply(&mut story)?;
+    book_2_thessalonians::apply(&mut story)?;
+    book_1_timothy::apply(&mut story)?;
+    book_2_timothy::apply(&mut story)?;
+    book_titus::apply(&mut story)?;
+    book_philemon::apply(&mut story)?;
+    book_hebrews::apply(&mut story)?;
+    book_james::apply(&mut story)?;
+    book_1_peter::apply(&mut story)?;
+    book_2_peter::apply(&mut story)?;
+    book_1_john::apply(&mut story)?;
+    book_2_john::apply(&mut story)?;
+    book_3_john::apply(&mut story)?;
+    book_jude::apply(&mut story)?;
+    book_revelation::apply(&mut story)?;
 
     if story.chapters.len() != CANONICAL_CHAPTER_COUNT
-        || story.verses.len() != CANONICAL_VERSE_TOTAL
+        || story.verse_count() != CANONICAL_VERSE_TOTAL
     {
         return Err(StoryError::IncompleteCanon {
             chapters: story.chapters.len(),
-            verses: story.verses.len(),
+            verses: story.verse_count(),
         });
     }
 
@@ -944,7 +1255,8 @@ mod tests {
     fn whole_story_contains_the_complete_canon() {
         let story = whole_story().expect("the canonical story should load");
         assert_eq!(story.chapters.len(), CANONICAL_CHAPTER_COUNT);
-        assert_eq!(story.verses.len(), CANONICAL_VERSE_TOTAL);
+        assert_eq!(story.verse_count(), CANONICAL_VERSE_TOTAL);
+        assert!(story.segments.len() > 6_000);
         assert_eq!(story.state, StoryState::Renewed);
         assert_eq!(
             story.chapters.first().map(|chapter| chapter.book),
@@ -959,16 +1271,18 @@ mod tests {
         );
         assert_eq!(
             story
-                .verses
+                .segments
                 .first()
-                .map(|verse| (verse.book, verse.chapter, verse.number)),
+                .and_then(|segment| segment.steps.first())
+                .map(|step| (step.book, step.chapter, step.verse)),
             Some((Book::Genesis, 1, 1))
         );
         assert_eq!(
             story
-                .verses
+                .segments
                 .last()
-                .map(|verse| (verse.book, verse.chapter, verse.number)),
+                .and_then(|segment| segment.steps.last())
+                .map(|step| (step.book, step.chapter, step.verse)),
             Some((Book::Revelation, 22, 21))
         );
     }
@@ -984,22 +1298,13 @@ mod tests {
     }
 
     #[test]
-    fn verse_cursor_rejects_a_skipped_first_verse() {
+    fn segment_cursor_rejects_a_skipped_first_verse() {
         let mut story = Story::new();
-        let result = story.record_verse(Verse {
-            book: Book::Genesis,
-            chapter: 1,
-            number: 2,
-            meaning: Meaning {
-                genre: Genre::Narrative,
-                actor: Actor::God,
-                action: Action::Speak,
-                focus: Focus::Cosmos,
-                register: Register::Narration,
-                rust_form: RustForm::Call,
-                signals: &[Signal::Witness],
-            },
-        });
-        assert!(matches!(result, Err(StoryError::InvalidVerseOrder { .. })));
+        let mut segment = story.segment(Book::Genesis, 1, 1, 1, "creation", &["beginning"]);
+        let result = segment.construct(2, "god", &["heaven"], &["created"]);
+        assert!(matches!(
+            result,
+            Err(StoryError::InvalidSegmentVerseOrder { .. })
+        ));
     }
 }

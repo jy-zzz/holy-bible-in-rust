@@ -1,74 +1,24 @@
 import fs from "node:fs";
 import path from "node:path";
+import { execFileSync } from "node:child_process";
 
-const root = path.dirname(new URL(import.meta.url).pathname).replace(/\/tools$/, "");
+const root = path.resolve(path.dirname(new URL(import.meta.url).pathname), "..");
+const booksRoot = path.join(root, "books");
 const sourcePath = process.argv[2] || "/tmp/rustament-source/kjv.json";
 const canonPath = path.join(root, "canon.json");
+const rustamentPath = path.join(root, "rustament.rs");
 const canon = JSON.parse(fs.readFileSync(canonPath, "utf8"));
 const source = JSON.parse(fs.readFileSync(sourcePath, "utf8"));
-
-const narrativeBooks = new Set([
-  "Genesis",
-  "Exodus",
-  "Numbers",
-  "Joshua",
-  "Judges",
-  "Ruth",
-  "1 Samuel",
-  "2 Samuel",
-  "1 Kings",
-  "2 Kings",
-  "1 Chronicles",
-  "2 Chronicles",
-  "Ezra",
-  "Nehemiah",
-  "Esther",
-]);
-const lawBooks = new Set(["Leviticus", "Deuteronomy"]);
-const wisdomBooks = new Set(["Job", "Psalms", "Proverbs", "Ecclesiastes", "Song of Solomon"]);
-const prophetBooks = new Set([
-  "Isaiah",
-  "Jeremiah",
-  "Lamentations",
-  "Ezekiel",
-  "Daniel",
-  "Hosea",
-  "Joel",
-  "Amos",
-  "Obadiah",
-  "Jonah",
-  "Micah",
-  "Nahum",
-  "Habakkuk",
-  "Zephaniah",
-  "Haggai",
-  "Zechariah",
-  "Malachi",
-]);
-const gospelBooks = new Set(["Matthew", "Mark", "Luke", "John"]);
-const letterBooks = new Set([
-  "Romans",
-  "1 Corinthians",
-  "2 Corinthians",
-  "Galatians",
-  "Ephesians",
-  "Philippians",
-  "Colossians",
-  "1 Thessalonians",
-  "2 Thessalonians",
-  "1 Timothy",
-  "2 Timothy",
-  "Titus",
-  "Philemon",
-  "Hebrews",
-  "James",
-  "1 Peter",
-  "2 Peter",
-  "1 John",
-  "2 John",
-  "3 John",
-  "Jude",
-]);
+const legacyPartitionFiles = [
+  "books/new-testament-general-revelation.rs",
+  "books/new-testament-gospels-acts.rs",
+  "books/new-testament-pauline.rs",
+  "books/old-testament-history.rs",
+  "books/old-testament-major-prophets.rs",
+  "books/old-testament-minor-prophets.rs",
+  "books/old-testament-pentateuch.rs",
+  "books/old-testament-wisdom.rs",
+];
 
 function functionIdentifier(name) {
   return name
@@ -77,6 +27,10 @@ function functionIdentifier(name) {
     .replace(/[^a-z0-9]+/g, "_")
     .replace(/^_+|_+$/g, "")
     .replace(/^([0-9])/, "_$1");
+}
+
+function moduleIdentifier(name) {
+  return `book_${functionIdentifier(name).replace(/^_/, "")}`;
 }
 
 function bookVariant(name) {
@@ -89,352 +43,585 @@ function bookVariant(name) {
     .replace(/^([0-9])/, "_$1");
 }
 
-function lower(text) {
-  return text.toLowerCase().replace(/[’]/g, "'");
+function rustString(value) {
+  return JSON.stringify(value);
 }
 
-function has(text, pattern) {
-  return pattern.test(text);
+function rustSlice(values) {
+  if (values.length === 0) throw new Error("cannot render an empty Rust slice");
+  return `&[${values.map(rustString).join(", ")}]`;
 }
 
-function genreFor(book) {
-  if (book === "Revelation") return "Vision";
-  if (gospelBooks.has(book)) return "Gospel";
-  if (letterBooks.has(book)) return "Letter";
-  if (lawBooks.has(book)) return "Law";
-  if (wisdomBooks.has(book)) return "Wisdom";
-  if (prophetBooks.has(book)) return "Prophecy";
-  if (narrativeBooks.has(book)) return "Narrative";
-  return "Narrative";
+function parseMacroCalls(sourceText, marker) {
+  const calls = [];
+  let cursor = 0;
+
+  while (true) {
+    const start = sourceText.indexOf(marker, cursor);
+    if (start === -1) break;
+
+    let depth = 1;
+    let inString = false;
+    let escaped = false;
+    let close = start + marker.length;
+    for (; close < sourceText.length; close += 1) {
+      const character = sourceText[close];
+      if (inString) {
+        if (escaped) escaped = false;
+        else if (character === "\\") escaped = true;
+        else if (character === '"') inString = false;
+        continue;
+      }
+      if (character === '"') inString = true;
+      else if (character === "(") depth += 1;
+      else if (character === ")") {
+        depth -= 1;
+        if (depth === 0) break;
+      }
+    }
+
+    if (depth !== 0) throw new Error(`unterminated ${marker} call`);
+    calls.push(sourceText.slice(start + marker.length, close));
+    cursor = close + 1;
+  }
+
+  return calls;
 }
 
-const actionRules = [
-  ["Create", /\b(created|create|made|formed|fashioned|built|build)\b/],
-  ["Generate", /\b(begat|begotten|born|birth|conceived|offspring|seed)\b/],
-  ["Die", /\b(died|death|dead|slain|buried|grave|mourn)\b/],
-  ["Rise", /\b(raised|risen|resurrection|arose|ascended|ascension)\b/],
-  ["Heal", /\b(heal|healed|healing|blind|lame|leper|sick|disease)\b/],
-  ["Suffer", /\b(crucif|cross|suffer|suffering|persecut|tribulation)\b/],
-  ["Deliver", /\b(deliver|delivered|save|saved|salvation|redeem|redeemed|rescue)\b/],
-  ["Judge", /\b(judge|judgment|judgement|wrath|woe|punish|vengeance)\b/],
-  ["Restore", /\b(forgive|forgiven|mercy|merciful|grace|restore|restored|return)\b/],
-  ["Command", /\b(command|commandment|statute|ordinance|law|precept|must|shalt)\b/],
-  ["Worship", /\b(altar|sacrifice|offering|offered|tabernacle|temple|worship)\b/],
-  ["Praise", /\b(praise|sing|song|bless|blessed|hallelujah|glory)\b/],
-  ["Pray", /\b(pray|prayer|cried|cry|wept|weep|supplication|ask)\b/],
-  ["Reveal", /\b(dream|vision|revealed|revelation|saw|behold|angel)\b/],
-  ["Teach", /\b(teach|taught|wisdom|knowledge|understand|parable|doctrine)\b/],
-  ["Speak", /\b(said|say|spake|speak|answered|voice|word|declare)\b/],
-  ["Move", /\b(went|go|came|come|brought|bring|sent|send|depart|journey)\b/],
-  ["Provide", /\b(food|bread|water|wine|rain|harvest|flock|herd|manna)\b/],
-  ["Rule", /\b(king|kingdom|reign|throne|ruler|prince|authority)\b/],
-  ["Love", /\b(love|charity|beloved|kindness|compassion)\b/],
-  ["Trust", /\b(faith|believe|believed|trust|hope|confidence)\b/],
-  ["Fail", /\b(sin|sinned|iniquity|transgress|trespass|evil|wicked)\b/],
+function parseChapterProse(file) {
+  const fullPath = path.join(root, file);
+  if (!fs.existsSync(fullPath)) return [];
+
+  const sourceText = fs.readFileSync(fullPath, "utf8");
+  return parseMacroCalls(sourceText, "crate::chapter!(").map((call) => {
+    const header = call.match(/^\s*story,\s*"((?:\\.|[^"\\])*)",\s*(\d+),([\s\S]*)$/);
+    if (!header) throw new Error(`${file}: malformed chapter! call`);
+
+    const prose = [...header[3].matchAll(/"(?:\\.|[^"\\])*"/g)].map((match) =>
+      JSON.parse(match[0]),
+    );
+    if (prose.length < 2) throw new Error(`${file}: chapter has fewer than two prose lines`);
+
+    return {
+      book: JSON.parse(`"${header[1]}"`),
+      number: Number(header[2]),
+      prose,
+    };
+  });
+}
+
+function proseSourceFiles() {
+  const files = new Set([
+    ...legacyPartitionFiles,
+    ...canon.books.map((book) => book.file),
+  ]);
+  if (fs.existsSync(booksRoot)) {
+    for (const entry of fs.readdirSync(booksRoot).sort()) {
+      if (entry.endsWith(".rs")) files.add(path.join("books", entry));
+    }
+  }
+  return [...files].sort();
+}
+
+function parseExistingChapters() {
+  const chapters = new Map();
+
+  for (const file of proseSourceFiles()) {
+    for (const chapter of parseChapterProse(file)) {
+      if (!chapters.has(chapter.book)) chapters.set(chapter.book, new Map());
+      const bookChapters = chapters.get(chapter.book);
+      const previous = bookChapters.get(chapter.number);
+      if (previous && JSON.stringify(previous) !== JSON.stringify(chapter.prose)) {
+        throw new Error(`${chapter.book} ${chapter.number}: conflicting chapter prose`);
+      }
+      bookChapters.set(chapter.number, chapter.prose);
+    }
+  }
+
+  return chapters;
+}
+
+const stopWords = new Set([
+  "a",
+  "about",
+  "after",
+  "all",
+  "also",
+  "an",
+  "and",
+  "are",
+  "as",
+  "at",
+  "be",
+  "because",
+  "been",
+  "before",
+  "being",
+  "but",
+  "by",
+  "came",
+  "can",
+  "come",
+  "could",
+  "did",
+  "do",
+  "does",
+  "for",
+  "from",
+  "had",
+  "has",
+  "have",
+  "he",
+  "her",
+  "here",
+  "him",
+  "his",
+  "how",
+  "if",
+  "in",
+  "into",
+  "is",
+  "it",
+  "its",
+  "let",
+  "may",
+  "more",
+  "my",
+  "of",
+  "on",
+  "one",
+  "only",
+  "or",
+  "our",
+  "out",
+  "said",
+  "she",
+  "should",
+  "so",
+  "some",
+  "than",
+  "that",
+  "the",
+  "their",
+  "them",
+  "then",
+  "there",
+  "these",
+  "they",
+  "this",
+  "those",
+  "thou",
+  "thy",
+  "to",
+  "up",
+  "upon",
+  "was",
+  "were",
+  "what",
+  "when",
+  "where",
+  "which",
+  "who",
+  "whom",
+  "with",
+  "ye",
+  "you",
+  "your",
+]);
+
+function sourceTokens(text) {
+  return (
+    text
+      .toLowerCase()
+      .replace(/[’]/g, "'")
+      .match(/[a-z0-9]+(?:'[a-z0-9]+)?/g) || []
+  );
+}
+
+function unique(values) {
+  return [...new Set(values)];
+}
+
+function lexicalTokens(text, limit = 5) {
+  const raw = sourceTokens(text);
+  const meaningful = unique(raw.filter((token) => token.length >= 3 && !stopWords.has(token)));
+  const fallback = unique(raw);
+  const tokens = meaningful.length > 0 ? meaningful : fallback;
+  if (tokens.length === 0) throw new Error("source verse contains no lexical tokens");
+  return tokens.slice(0, limit);
+}
+
+const subjectWords = new Set([
+  "jesus",
+  "christ",
+  "messiah",
+  "saviour",
+  "savior",
+  "god",
+  "lord",
+  "spirit",
+  "angel",
+  "cherub",
+  "seraph",
+  "moses",
+  "aaron",
+  "abraham",
+  "isaac",
+  "jacob",
+  "joseph",
+  "david",
+  "paul",
+  "peter",
+  "john",
+  "pharaoh",
+  "king",
+  "queen",
+  "priest",
+  "levite",
+  "prophet",
+  "israel",
+  "judah",
+  "people",
+  "nation",
+  "nations",
+  "man",
+  "men",
+  "woman",
+  "women",
+  "child",
+  "children",
+]);
+
+function subjectFor(text) {
+  const lexical = lexicalTokens(text, 8);
+  return lexical.find((token) => subjectWords.has(token)) || lexical[0];
+}
+
+const operationRules = [
+  ["construct", /\b(created|create|made|make|formed|fashioned|built|build|born|begat|begotten)\b/],
+  ["move_value", /\b(went|go|gone|came|come|brought|bring|sent|send|depart|journey|flee|fled|crossed)\b/],
+  ["drop_value", /\b(died|death|dead|slain|killed|kill|buried|grave|destroyed|destroy)\b/],
+  ["reinitialize", /\b(raised|risen|resurrection|arose|ascended|restore|restored|renewed|new)\b/],
+  ["guard", /\b(command|commandment|statute|ordinance|law|precept|must|shalt|keep|forbid|forbidden|not|no|nor|neither)\b/],
+  ["result", /\b(pray|prayer|cried|cry|wept|weep|supplication|ask|asked|request)\b/],
+  ["match_value", /\b(dream|vision|revealed|revelation|saw|behold|whether|interpret)\b/],
+  ["call", /\b(said|say|spake|speak|answered|voice|word|declare|teach|taught|preach)\b/],
+  ["trait_bound", /\b(altar|sacrifice|offering|offered|tabernacle|temple|worship|praise|sing|song|glory)\b/],
+  ["await_value", /\b(faith|believe|believed|trust|hope|wait|waiting|confidence)\b/],
+  ["borrow", /\b(love|charity|beloved|kindness|compassion|mercy|merciful|grace)\b/],
+  ["return_value", /\b(return|returned|promise|covenant|inheritance|bless|blessed)\b/],
+  ["iterate", /\b(genealogy|generations|every|each|numbered|counted|tribes|sons)\b/],
+  ["panic", /\b(fear|afraid|woe|wrath|terror|tremble|trembled)\b/],
 ];
 
-function actionFor(text) {
-  for (const [action, pattern] of actionRules) {
-    if (has(text, pattern)) return action;
-  }
-  return "Witness";
+function operationFor(text) {
+  const lower = text.toLowerCase();
+  return operationRules.find(([, pattern]) => pattern.test(lower))?.[0] || "expression";
 }
 
-function actorFor(text) {
-  if (has(text, /\b(jesus|christ|messiah|son of man|saviour|savior)\b/)) return "Messiah";
-  if (has(text, /\b(lord|god|almighty|most high|jehovah)\b/)) return "God";
-  if (has(text, /\b(angel|cherub|seraph)\b/)) return "Messenger";
-  if (has(text, /\b(spirit|holy ghost)\b/)) return "Spirit";
-  if (has(text, /\b(priest|levite|high priest)\b/)) return "Priest";
-  if (has(text, /\b(king|queen|ruler|prince|pharaoh|governor)\b/)) return "King";
-  if (has(text, /\b(moses|aaron|abraham|isaac|jacob|joseph|david|paul|peter|john)\b/)) {
-    return "Witness";
-  }
-  if (has(text, /\b(israel|judah|people|nation|nations|church|disciples)\b/)) return "Community";
-  return "Humanity";
-}
-
-function focusFor(text, book) {
-  if (has(text, /\b(heaven|earth|sun|moon|star|light|darkness|sea|waters)\b/)) return "Cosmos";
-  if (has(text, /\b(covenant|promise|oath|swear|inheritance)\b/)) return "Covenant";
-  if (has(text, /\b(law|commandment|statute|ordinance|precept)\b/)) return "Law";
-  if (has(text, /\b(temple|tabernacle|altar|sanctuary|house of god)\b/)) return "Temple";
-  if (has(text, /\b(king|kingdom|throne|reign|ruler)\b/)) return "Kingdom";
-  if (has(text, /\b(son|daughter|father|mother|brother|sister|wife|husband|seed)\b/)) {
-    return "Household";
-  }
-  if (has(text, /\b(just|justice|judgment|poor|widow|fatherless|oppress)\b/)) return "Justice";
-  if (has(text, /\b(wisdom|wise|knowledge|understanding|instruction)\b/)) return "Wisdom";
-  if (has(text, /\b(spirit|ghost|power|anoint)\b/)) return "Spirit";
-  if (has(text, /\b(satan|devil|serpent|dragon|enemy|adversary)\b/)) return "Adversary";
-  if (has(text, /\b(christ|jesus|messiah|lamb|cross|resurrection)\b/)) return "Messiah";
-  if (book === "Revelation") return "Renewal";
-  if (has(text, /\b(israel|judah|jerusalem|zion)\b/)) return "Israel";
-  if (has(text, /\b(nation|nations|gentile|people)\b/)) return "Nations";
-  return "Community";
-}
-
-function registerFor(text, book) {
-  if (has(text, /\b(begat|genealogy|generations|son of|daughter of)\b/)) return "Genealogy";
-  if (has(text, /\b(woe|judgment|judgement|wrath|day of the lord|punish)\b/)) return "Warning";
-  if (has(text, /\b(command|commandment|statute|ordinance|precept|shalt|must)\b/)) {
-    return "Instruction";
-  }
-  if (has(text, /\b(covenant|promise|oath|swear|shall be|will be)\b/)) return "Promise";
-  if (has(text, /\b(pray|prayer|cried|cry|supplication|ask)\b/)) return "Petition";
-  if (has(text, /\b(vision|dream|revealed|behold|saw)\b/)) return "Vision";
-  if (has(text, /\b(praise|sing|song|hallelujah|glory)\b/)) return "Praise";
-  if (has(text, /\b(weep|wept|lament|sorrow|grief)\b/)) return "Lament";
-  if (book === "Psalms" || book === "Proverbs" || book === "Ecclesiastes") return "Wisdom";
-  if (book === "Revelation") return "Vision";
-  return "Narration";
-}
-
-const signalRules = [
-  ["Beginning", /\b(beginning|first|created|create|made|formed|light)\b/],
-  ["Separation", /\b(separate|divided|divide|apart|distinguish)\b/],
-  ["Naming", /\b(call(ed)?|name(d)?|called)\b/],
-  ["Genealogy", /\b(begat|genealogy|generations|son of|daughter of)\b/],
-  ["Covenant", /\b(covenant|promise|oath|swear|inheritance)\b/],
-  ["Exodus", /\b(egypt|pharaoh|plague|passover|flee|deliver)\b/],
-  ["Wilderness", /\b(wilderness|desert|manna|camp|tent)\b/],
-  ["Land", /\b(land|ground|mountain|city|field|vineyard)\b/],
-  ["Kingship", /\b(king|kingdom|throne|reign|ruler|prince)\b/],
-  ["Exile", /\b(exile|captiv|scatter|foreign|babylon|assyria)\b/],
-  ["Return", /\b(return|restore|restored|rebuild|come again)\b/],
-  ["Temple", /\b(temple|tabernacle|altar|sanctuary|house of god)\b/],
-  ["Sacrifice", /\b(sacrifice|offering|blood|altar|atonement)\b/],
-  ["Justice", /\b(justice|righteous|poor|widow|fatherless|oppress)\b/],
-  ["Mercy", /\b(mercy|merciful|grace|compassion|forgive)\b/],
-  ["Wisdom", /\b(wisdom|wise|knowledge|understanding|instruction)\b/],
-  ["Praise", /\b(praise|sing|song|bless|hallelujah|glory)\b/],
-  ["Lament", /\b(weep|wept|lament|sorrow|grief|mourning)\b/],
-  ["Prophecy", /\b(prophet|vision|dream|oracle|behold|day of the lord)\b/],
-  ["Messenger", /\b(angel|messenger|sent)\b/],
-  ["Healing", /\b(heal|healed|blind|lame|leper|sick|disease)\b/],
-  ["Hospitality", /\b(feed|food|bread|water|guest|stranger|house)\b/],
-  ["Conflict", /\b(war|battle|fight|enemy|foe|persecut)\b/],
-  ["Persecution", /\b(prison|suffer|tribulation|persecut|affliction)\b/],
-  ["Resurrection", /\b(raised|risen|resurrection|arose|ascended)\b/],
-  ["Mission", /\b(preach|teach|disciple|witness|sent|nations)\b/],
-  ["Church", /\b(church|assembly|brethren|body of christ)\b/],
-  ["Judgment", /\b(judge|judgment|judgement|wrath|woe|punish)\b/],
-  ["Renewal", /\b(new heaven|new earth|life|renew|restore|river of life)\b/],
-  ["Provision", /\b(food|bread|water|rain|harvest|flock|herd|manna)\b/],
-  ["Prayer", /\b(pray|prayer|cried|cry|supplication)\b/],
-  ["Marriage", /\b(marriage|married|wife|husband|bride|bridegroom)\b/],
-  ["Birth", /\b(born|birth|conceived|womb|travail)\b/],
-  ["Death", /\b(died|death|dead|slain|buried|grave)\b/],
-  ["Famine", /\b(famine|hunger|hungry|drought)\b/],
-  ["Harvest", /\b(harvest|fruit|vine|wheat|reap|grain)\b/],
-  ["Law", /\b(law|commandment|statute|ordinance|precept)\b/],
-  ["Spirit", /\b(spirit|ghost|power|anoint)\b/],
-  ["Baptism", /\b(baptiz|water|jordan)\b/],
-  ["Faith", /\b(faith|believe|trust|hope|confidence)\b/],
-  ["Love", /\b(love|charity|beloved|kindness|compassion)\b/],
-  ["Neighbor", /\b(neighbor|brother|sister|one another)\b/],
-  ["Adversary", /\b(satan|devil|serpent|dragon|enemy|adversary)\b/],
-  ["Vision", /\b(vision|dream|revealed|behold|saw)\b/],
-  ["Witness", /\b(witness|testimony|record|remember)\b/],
-];
-
-function signalsFor(text) {
-  const signals = [];
-  for (const [signal, pattern] of signalRules) {
-    if (has(text, pattern)) signals.push(signal);
-    if (signals.length === 5) break;
-  }
-  return signals;
-}
-
-function fallbackSignalFor(action) {
-  const signals = {
-    Create: "Beginning",
-    Generate: "Genealogy",
-    Die: "Death",
-    Rise: "Resurrection",
-    Heal: "Healing",
-    Suffer: "Persecution",
-    Deliver: "Mercy",
-    Judge: "Judgment",
-    Restore: "Renewal",
-    Command: "Law",
-    Worship: "Temple",
-    Praise: "Praise",
-    Pray: "Prayer",
-    Reveal: "Vision",
-    Teach: "Wisdom",
-    Speak: "Witness",
-    Move: "Land",
-    Provide: "Provision",
-    Rule: "Kingship",
-    Love: "Love",
-    Trust: "Faith",
-    Fail: "Adversary",
-    Witness: "Witness",
-  };
-  return signals[action] || "Witness";
-}
-
-function rustFormFor({ action, genre, register }) {
-  if (register === "Genealogy") return "Iterate";
-  if (register === "Instruction" || register === "Warning") return "Guard";
-  if (register === "Promise") return "Return";
-  if (register === "Petition") return "Result";
-  if (register === "Vision") return "Match";
-
-  switch (action) {
-    case "Create":
-    case "Generate":
-      return "Construct";
-    case "Move":
-      return "Move";
-    case "Die":
-      return "Drop";
-    case "Rise":
-    case "Restore":
-      return "Reinitialize";
-    case "Judge":
-    case "Fail":
-      return "Guard";
-    case "Reveal":
-      return "Match";
-    case "Worship":
-    case "Praise":
-      return "Trait";
-    case "Pray":
-    case "Deliver":
-      return "Result";
-    case "Teach":
-    case "Speak":
-      return "Call";
-    case "Provide":
-    case "Love":
-      return "Borrow";
-    case "Trust":
-      return "Await";
-    default:
-      return genre === "Letter" ? "Call" : "Expression";
-  }
-}
-
-function meaningFor(book, verseText) {
-  const text = lower(verseText);
-  const genre = genreFor(book);
-  const actor = actorFor(text);
-  const action = actionFor(text);
-  const focus = focusFor(text, book);
-  const register = registerFor(text, book);
-  const signals = signalsFor(text);
+function verseData(verse) {
+  const lexical = lexicalTokens(verse.text, 8);
+  const subject = subjectFor(verse.text);
+  const objects = lexical.filter((token) => token !== subject).slice(0, 3);
+  const safeObjects = objects.length > 0 ? objects : [subject];
+  const tokens = unique([subject, ...safeObjects, ...lexical]).slice(0, 5);
   return {
-    genre,
-    actor,
-    action,
-    focus,
-    register,
-    rustForm: rustFormFor({ action, genre, register }),
-    signals: signals.length > 0 ? signals : [fallbackSignalFor(action)],
+    verse: verse.number,
+    operation: operationFor(verse.text),
+    subject,
+    objects: safeObjects,
+    tokens,
   };
 }
 
-function renderMeaning(meaning) {
-  const signals = meaning.signals.map((signal) => `Signal::${signal}`).join(", ");
-  return `crate::meaning!(Genre::${meaning.genre}, Actor::${meaning.actor}, Action::${meaning.action}, Focus::${meaning.focus}, Register::${meaning.register}, RustForm::${meaning.rustForm}, ${signals})`;
+function groupSummary(steps) {
+  const operations = unique(steps.map((step) => step.operation)).join(" -> ");
+  const lexical = unique(steps.flatMap((step) => step.tokens)).slice(0, 3);
+  return `${steps[0].subject} ${operations} ${lexical.join(" ")}`;
 }
 
-const sourceByBook = new Map(source.books.map((book) => [book.englishName, book]));
-const canonBookNames = canon.books.map((book) => book.name);
-const missingBooks = canonBookNames.filter((book) => !sourceByBook.has(book));
-if (missingBooks.length > 0) {
-  throw new Error(`source is missing canonical books: ${missingBooks.join(", ")}`);
+function groupContext(steps) {
+  return unique(steps.flatMap((step) => step.tokens)).slice(0, 5);
 }
 
-const verseCounts = [];
-let totalVerses = 0;
-const generatedByFile = new Map();
+function groupRanges(verses) {
+  const count = verses.length;
+  if (count < 3) return [[0, count]];
 
-for (const canonBook of canon.books) {
-  const sourceBook = sourceByBook.get(canonBook.name);
-  if (sourceBook.chapters.length !== canonBook.chapters) {
-    throw new Error(
-      `${canonBook.name}: expected ${canonBook.chapters} chapters, found ${sourceBook.chapters.length}`,
+  const sizes = [];
+  const remainder = count % 4;
+  if (remainder === 0) {
+    sizes.push(...Array.from({ length: count / 4 }, () => 4));
+  } else if (remainder === 1) {
+    sizes.push(...Array.from({ length: (count - 5) / 4 }, () => 4), 5);
+  } else if (remainder === 2) {
+    sizes.push(...Array.from({ length: (count - 6) / 4 }, () => 4), 3, 3);
+  } else {
+    sizes.push(...Array.from({ length: (count - 3) / 4 }, () => 4), 3);
+  }
+
+  const ranges = [];
+  let start = 0;
+  for (const size of sizes) {
+    ranges.push([start, start + size]);
+    start += size;
+  }
+  if (start !== count) throw new Error(`failed to group ${count} verses`);
+  return ranges;
+}
+
+function renderGroupFunction(book, chapter, groupNumber, verses, start, end) {
+  const steps = verses.slice(start, end).map(verseData);
+  const firstVerse = steps[0].verse;
+  const lastVerse = steps.at(-1).verse;
+  const functionName = `${functionIdentifier(book.name)}_${chapter.chapter}_group_${String(groupNumber).padStart(2, "0")}`;
+  const lines = [
+    `fn ${functionName}(story: &mut Story) -> Result<(), StoryError> {`,
+    `    let mut segment = story.segment(Book::${bookVariant(book.name)}, ${chapter.chapter}, ${firstVerse}, ${lastVerse}, ${rustString(groupSummary(steps))}, ${rustSlice(groupContext(steps))});`,
+  ];
+
+  for (const step of steps) {
+    lines.push(
+      `    segment.${step.operation}(${step.verse}, ${rustString(step.subject)}, ${rustSlice(step.objects)}, ${rustSlice(step.tokens)})?;`,
     );
   }
 
-  const counts = [];
-  const chapters = [];
-  for (const sourceChapter of sourceBook.chapters) {
-    counts.push(sourceChapter.verses.length);
-    totalVerses += sourceChapter.verses.length;
-    chapters.push({
-      number: sourceChapter.chapter,
-      verses: sourceChapter.verses.map((verse) => ({
-        number: verse.number,
-        meaning: meaningFor(canonBook.name, verse.text),
-      })),
-    });
+  lines.push("    segment.commit()?;", "    Ok(())", "}", "");
+  return { functionName, lines };
+}
+
+function renderBook(book, chapters, sourceBook) {
+  const bookIdentifier = functionIdentifier(book.name);
+  const lines = [
+    "use crate::{Book, Story, StoryError};",
+    "",
+    "pub fn apply(story: &mut Story) -> Result<(), StoryError> {",
+    `    ${bookIdentifier}(story)?;`,
+    "    Ok(())",
+    "}",
+    "",
+    `fn ${bookIdentifier}(story: &mut Story) -> Result<(), StoryError> {`,
+  ];
+
+  for (const chapter of chapters) {
+    lines.push(`    ${bookIdentifier}_${chapter.number}(story)?;`);
   }
-  verseCounts.push(counts);
-  generatedByFile.set(canonBook.file, [
-    ...(generatedByFile.get(canonBook.file) || []),
-    { name: canonBook.name, chapters },
-  ]);
+
+  lines.push("    Ok(())", "}", "");
+  const groupFunctions = [];
+  for (const chapter of chapters) {
+    const sourceChapter = sourceBook.chapters[chapter.number - 1];
+    const chapterFunctionName = `${bookIdentifier}_${chapter.number}`;
+    const prose = chapter.prose.map(rustString).join(", ");
+    lines.push(
+      `fn ${chapterFunctionName}(story: &mut Story) -> Result<(), StoryError> {`,
+      `    crate::chapter!(story, ${rustString(book.name)}, ${chapter.number}, ${prose});`,
+    );
+
+    const ranges = groupRanges(sourceChapter.verses);
+    for (let index = 0; index < ranges.length; index += 1) {
+      const [start, end] = ranges[index];
+      const group = renderGroupFunction(
+        book,
+        sourceChapter,
+        index + 1,
+        sourceChapter.verses,
+        start,
+        end,
+      );
+      lines.push(`    ${group.functionName}(story)?;`);
+      groupFunctions.push(group);
+    }
+
+    lines.push("    Ok(())", "}", "");
+  }
+
+  for (const group of groupFunctions) {
+    lines.push(...group.lines);
+  }
+  return `${lines.join("\n")}\n`;
 }
 
-if (totalVerses !== 31_102) {
-  throw new Error(`expected the standard Protestant 31,102 verses, found ${totalVerses}`);
+function validateSourceBook(book, sourceBook) {
+  const expectedFile = `books/${functionIdentifier(book.name)}.rs`;
+  if (book.file !== expectedFile) {
+    throw new Error(`${book.name}: canon file must be ${expectedFile}, found ${book.file}`);
+  }
+  if (!sourceBook || !Array.isArray(sourceBook.chapters)) {
+    throw new Error(`source is missing ${book.name}`);
+  }
+  if (sourceBook.chapters.length !== book.chapters) {
+    throw new Error(
+      `${book.name}: expected ${book.chapters} chapters, found ${sourceBook.chapters.length}`,
+    );
+  }
+  if (!Array.isArray(book.verses) || book.verses.length !== book.chapters) {
+    throw new Error(`${book.name}: canon.json has invalid per-chapter verse counts`);
+  }
+
+  let verseCount = 0;
+  for (let chapterIndex = 0; chapterIndex < sourceBook.chapters.length; chapterIndex += 1) {
+    const chapter = sourceBook.chapters[chapterIndex];
+    if (chapter.chapter !== chapterIndex + 1) {
+      throw new Error(`${book.name}: source chapter order breaks at ${chapter.chapter}`);
+    }
+    if (!Array.isArray(chapter.verses) || chapter.verses.length === 0) {
+      throw new Error(`${book.name} ${chapter.chapter}: source chapter has no verses`);
+    }
+    if (chapter.verses.length !== book.verses[chapterIndex]) {
+      throw new Error(
+        `${book.name} ${chapter.chapter}: canon expects ${book.verses[chapterIndex]} verses, found ${chapter.verses.length}`,
+      );
+    }
+    for (let verseIndex = 0; verseIndex < chapter.verses.length; verseIndex += 1) {
+      const verse = chapter.verses[verseIndex];
+      if (verse.number !== verseIndex + 1) {
+        throw new Error(
+          `${book.name} ${chapter.chapter}: source verse order breaks at ${verse.number}`,
+        );
+      }
+      if (typeof verse.text !== "string" || verse.text.trim().length === 0) {
+        throw new Error(`${book.name} ${chapter.chapter}:${verse.number}: source verse is empty`);
+      }
+      verseCount += 1;
+    }
+  }
+  if (verseCount !== book.verse_count) {
+    throw new Error(`${book.name}: canon expects ${book.verse_count} verses, found ${verseCount}`);
+  }
 }
 
+function validateProse(book, proseByBook) {
+  const proseByChapter = proseByBook.get(book.name);
+  if (!proseByChapter || proseByChapter.size !== book.chapters) {
+    throw new Error(`${book.name}: expected ${book.chapters} preserved chapter retellings`);
+  }
+
+  return Array.from({ length: book.chapters }, (_, index) => {
+    const number = index + 1;
+    const prose = proseByChapter.get(number);
+    if (!prose) throw new Error(`${book.name} ${number}: missing preserved chapter retelling`);
+    return { book: book.name, number, prose };
+  });
+}
+
+const canonBookNames = canon.books.map((book) => book.name);
+const sourceByBook = new Map(source.books.map((book) => [book.englishName, book]));
+if (canon.books.length !== 66) throw new Error(`expected 66 canonical books, found ${canon.books.length}`);
+if (source.books.length !== 66) throw new Error(`expected 66 source books, found ${source.books.length}`);
+if (canonBookNames.some((name, index) => source.books[index]?.englishName !== name)) {
+  throw new Error("source book order does not match canon.json");
+}
+
+const existingChapters = parseExistingChapters();
+const renderedBooks = [];
+let totalVerses = 0;
+let totalSegments = 0;
+
+for (const book of canon.books) {
+  const sourceBook = sourceByBook.get(book.name);
+  validateSourceBook(book, sourceBook);
+  const chapters = validateProse(book, existingChapters);
+  const targetFile = `books/${functionIdentifier(book.name)}.rs`;
+  const output = renderBook(book, chapters, sourceBook);
+
+  for (const verse of sourceBook.chapters.flatMap((chapter) => chapter.verses)) {
+    if (verse.text.length >= 40 && output.includes(verse.text)) {
+      throw new Error(`${book.name}: generated output contains a complete source verse`);
+    }
+  }
+
+  renderedBooks.push({ targetFile, output, sourceBook });
+  totalVerses += sourceBook.chapters.reduce((sum, chapter) => sum + chapter.verses.length, 0);
+  totalSegments += sourceBook.chapters.reduce(
+    (sum, chapter) => sum + groupRanges(chapter.verses).length,
+    0,
+  );
+}
+
+if (totalVerses !== 31_102) throw new Error(`expected 31,102 verses, found ${totalVerses}`);
+if (canon.books.reduce((sum, book) => sum + book.chapters, 0) !== 1_189) {
+  throw new Error("canon.json does not describe 1,189 chapters");
+}
+if (canon.books.reduce((sum, book) => sum + book.verse_count, 0) !== totalVerses) {
+  throw new Error("canon.json verse totals do not match the source");
+}
+
+const targetNames = new Set(renderedBooks.map(({ targetFile }) => path.basename(targetFile)));
+fs.mkdirSync(booksRoot, { recursive: true });
+for (const entry of fs.readdirSync(booksRoot)) {
+  if (entry.endsWith(".rs") && !targetNames.has(entry)) {
+    fs.rmSync(path.join(booksRoot, entry), { force: true });
+  }
+}
+fs.rmSync(path.join(root, "verses"), { recursive: true, force: true });
+
+for (const { targetFile, output } of renderedBooks) {
+  fs.writeFileSync(path.join(root, targetFile), output);
+}
+
+function updateRootModuleWiring() {
+  const sourceText = fs.readFileSync(rustamentPath, "utf8");
+  const firstModule = sourceText.indexOf("#[path =");
+  const verseCounts = sourceText.indexOf("mod verse_counts;", firstModule);
+  if (firstModule === -1 || verseCounts === -1) {
+    throw new Error("rustament.rs: could not locate the book module wiring block");
+  }
+
+  const moduleLines = canon.books
+    .map(
+      (book) =>
+        `#[rustfmt::skip]\n#[path = "${book.file}"]\nmod ${moduleIdentifier(book.name)};`,
+    )
+    .join("\n");
+  const prefix = sourceText.slice(0, firstModule).replace(/(?:#\[rustfmt::skip\]\n)+$/, "");
+  let updated = `${prefix}${moduleLines}\n${sourceText.slice(verseCounts)}`;
+
+  const wholeStory = updated.indexOf("pub fn whole_story");
+  const firstApply = updated.indexOf("\n    book", wholeStory);
+  const applyEnd = updated.indexOf("\n\n    if story.chapters", firstApply);
+  if (wholeStory === -1 || firstApply === -1 || applyEnd === -1) {
+    throw new Error("rustament.rs: could not locate the whole_story book application block");
+  }
+  const applyLines = canon.books
+    .map((book) => `    ${moduleIdentifier(book.name)}::apply(&mut story)?;`)
+    .join("\n");
+  updated = `${updated.slice(0, firstApply + 1)}${applyLines}${updated.slice(applyEnd)}`;
+
+  if (updated !== sourceText) fs.writeFileSync(rustamentPath, updated);
+}
+
+updateRootModuleWiring();
+
+canon.chapter_count = 1_189;
 canon.verse_count = totalVerses;
 for (const book of canon.books) {
   const sourceBook = sourceByBook.get(book.name);
-  book.verse_count = sourceBook.chapters.reduce((count, chapter) => count + chapter.verses.length, 0);
+  book.file = `books/${functionIdentifier(book.name)}.rs`;
+  book.verse_count = sourceBook.chapters.reduce((sum, chapter) => sum + chapter.verses.length, 0);
   book.verses = sourceBook.chapters.map((chapter) => chapter.verses.length);
 }
 fs.writeFileSync(canonPath, `${JSON.stringify(canon, null, 2)}\n`);
 
 const countsSource = [
   "pub const CANONICAL_VERSE_COUNTS: &[&[u16]] = &[",
-  ...verseCounts.map((counts) => `    &[${counts.join(", ")}],`),
+  ...canon.books.map((book) => `    &[${book.verses.join(", ")}],`),
   "];",
   "",
   `pub const CANONICAL_VERSE_TOTAL: usize = ${totalVerses};`,
   "",
 ];
-fs.writeFileSync(path.join(root, "verse_counts.rs"), countsSource.join("\n"));
+const countsPath = path.join(root, "verse_counts.rs");
+fs.writeFileSync(countsPath, countsSource.join("\n"));
 
-const versesRoot = path.join(root, "verses");
-fs.rmSync(versesRoot, { recursive: true, force: true });
-fs.mkdirSync(versesRoot, { recursive: true });
-
-for (const [file, books] of generatedByFile) {
-  const output = [
-    "use crate::{Action, Actor, Book, Focus, Genre, Register, RustForm, Signal, Story, StoryError};",
-    "",
-    "pub fn apply(story: &mut Story) -> Result<(), StoryError> {",
-    ...books.map((book) => `    ${functionIdentifier(book.name)}(story)?;`),
-    "    Ok(())",
-    "}",
-    "",
-  ];
-
-  for (const book of books) {
-    output.push(
-      `fn ${functionIdentifier(book.name)}(story: &mut Story) -> Result<(), StoryError> {`,
-    );
-    for (const chapter of book.chapters) {
-      for (const verse of chapter.verses) {
-        output.push(
-          `    crate::verse!(story, Book::${bookVariant(book.name)}, ${chapter.number}, ${verse.number}, ${renderMeaning(verse.meaning)});`,
-        );
-      }
-    }
-    output.push("    Ok(())", "}", "");
-  }
-
-  const target = path.join(root, file.replace(/^books\//, "verses/"));
-  fs.writeFileSync(target, output.join("\n"));
-  console.log(`generated ${target}: ${books.reduce((total, book) => total + book.chapters.reduce((n, chapter) => n + chapter.verses.length, 0), 0)} verses`);
-}
-
-console.log(`generated verse ledger: ${totalVerses} verses`);
+const generatedPaths = renderedBooks.map(({ targetFile }) => path.join(root, targetFile));
+execFileSync("rustfmt", ["--edition", "2021", rustamentPath, ...generatedPaths, countsPath], {
+  cwd: root,
+  stdio: "inherit",
+});
+const largest = generatedPaths.reduce((largestPath, candidate) =>
+  fs.statSync(candidate).size > fs.statSync(largestPath).size ? candidate : largestPath,
+);
+console.log(`generated ${generatedPaths.length} book files`);
+console.log(`generated ${totalVerses} verse calls in ${totalSegments} Rust segments`);
+console.log(`largest file: ${largest} (${fs.statSync(largest).size} bytes)`);
