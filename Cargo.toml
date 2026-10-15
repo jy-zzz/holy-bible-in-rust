@@ -1,9 +1,9 @@
 [package]
-name = "rustament"
+name = "holy-bible-in-rust"
 version = "0.1.0"
 edition = "2021"
-description = "A complete Rust-style parody retelling of the Protestant Bible"
+description = "A complete, secure, AI-native edition of the Holy Bible in Rust"
 
 [[bin]]
-name = "rustament"
-path = "rustament.rs"
+name = "holy-bible-in-rust"
+path = "holy_bible_in_rust.rs"

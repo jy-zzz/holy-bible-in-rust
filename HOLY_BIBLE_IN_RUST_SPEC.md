@@ -1,8 +1,10 @@
-# Rustament Complete Edition
+# Holy Bible in Rust Complete Edition
 
-The Rustament is an original parody retelling of the Protestant 66-book Bible
-as genuine Rust source. It is not intended to replace a Bible translation and
-must not reproduce the wording of an existing Bible edition.
+Holy Bible in Rust is an original computational modernization of the Protestant
+66-book Bible as genuine Rust source. It is designed as a secure, auditable,
+AI-native representation: deterministic, explicit, and efficient to inspect.
+It is not intended to replace a Bible translation and must not reproduce the
+wording of an existing Bible edition.
 
 This document is the architecture contract for the complete edition. The
 implementation, generator, verifier, and canonical data are separate concerns,
@@ -208,7 +210,7 @@ verse is not a valid translation.
 
 ## Runtime architecture
 
-- `rustament.rs` defines `Story`, chapter storage, segment storage, typed
+- `holy_bible_in_rust.rs` defines `Story`, chapter storage, segment storage, typed
   operation records, `StoryState`, `StoryError`, and `whole_story`.
 - The root module imports the 66 book modules in Protestant canonical order.
 - Each book module exports `pub fn apply(story: &mut Story) -> Result<(), StoryError>`.
@@ -216,7 +218,7 @@ verse is not a valid translation.
 - `Covenant<'a>` demonstrates borrowing and lifetime-scoped data before
   transferring it into `OwnedCovenant`.
 - `Result`, `?`, `match`, `Vec`, slices, `String`, enums, and module boundaries
-  are used as actual Rust mechanisms and as parody language.
+  are used as actual Rust mechanisms and as narrative language.
 - The story cursor rejects missing, duplicated, out-of-order, and out-of-range
   book, chapter, and verse coordinates.
 - A segment that fails validation cannot be committed and cannot count toward
@@ -228,13 +230,14 @@ placeholder, or detached ledger.
 
 ## Style
 
-- Use original parody prose rather than quotations.
+- Use original modernization prose rather than quotations.
 - Let ownership, borrowing, lifetimes, traits, state transitions, guards,
   results, moves, drops, migrations, merge conflicts, logs, and releases carry
   the metaphor.
 - Preserve the distinctive movement of every individual chapter, including
   genealogies, poems, laws, speeches, visions, letters, and narrative turns.
-- Keep the tone playful without treating religious belief as the punchline.
+- Maintain a respectful, serious tone while preserving the distinctive movement
+  of each book.
 - Keep chapter prose and verse operations in the same book file.
 - Never add `TODO`, `CHAPTER OMITTED`, `SUMMARY OMITTED`, `[insert]`, a hidden
   chapter or verse range, or "the rest is similar."
@@ -258,14 +261,14 @@ steps are:
 The target command is:
 
 ```sh
-node tools/generate_verse_rust.mjs /tmp/rustament-source/kjv.json
+node .tools/generate_verse_rust.mjs /tmp/holy-bible-in-rust-source/kjv.json
 cargo fmt
 ```
 
 Generation is successful only when the resulting source follows this
 specification. A generator that emits a detached ledger, semantic-only payload,
-partition file, or range shortcut has not generated a Rustament complete
-edition.
+partition file, or range shortcut has not generated a complete Holy Bible in
+Rust edition.
 
 ## Verification
 
@@ -273,12 +276,12 @@ The completeness verifier is an acceptance gate, not a count-only smoke test.
 Run:
 
 ```sh
-node verify-completeness.mjs
+node .tools/verify-completeness.mjs
 cargo fmt -- --check
 cargo check
 cargo test --quiet
 cargo clippy -- -D warnings
-cargo run --quiet > /tmp/rustament-output.txt
+cargo run --quiet > /tmp/holy-bible-in-rust-output.txt
 ```
 
 The verifier must inspect the source tree and prove:

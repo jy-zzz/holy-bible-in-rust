@@ -1,7 +1,7 @@
 import fs from "node:fs";
 import path from "node:path";
 
-const root = path.dirname(new URL(import.meta.url).pathname).replace(/\/tools$/, "");
+const root = path.resolve(path.dirname(new URL(import.meta.url).pathname), "..");
 const canon = JSON.parse(fs.readFileSync(path.join(root, "canon.json"), "utf8"));
 
 function extractCalls(source, marker) {

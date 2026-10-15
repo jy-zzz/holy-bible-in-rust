@@ -1,7 +1,8 @@
-# The Rustament
+# Holy Bible in Rust
 
-The Rustament is a complete Rust-style parody retelling of the Protestant
-66-book Bible. It is original creative writing, not a translation, devotional
+Holy Bible in Rust is a complete computational edition of the Protestant
+66-book Bible for secure, auditable, AI-native systems. It is an original
+Rust-language modernization rather than an official translation, devotional
 text, or replacement for any Bible edition.
 
 The project keeps the whole story in executable Rust syntax: creation,
@@ -9,6 +10,24 @@ fracture, covenant, exile, prophetic hope, incarnation, crucifixion,
 resurrection, mission, letters, judgment, and renewal. It is written to be
 read as code, with Rust's ownership, control flow, and type system carrying the
 narrative rather than serving as a decorative comment layer.
+
+## Product goals
+
+- **Canonical coverage:** preserve all 66 books, 1,189 chapters, and 31,102
+  verse coordinates in Protestant/KJV order.
+- **AI-native structure:** expose each verse through explicit, bounded Rust
+  operations that can be indexed, inspected, validated, and processed by
+  language models and other software.
+- **Security by construction:** reject missing, duplicated, out-of-order, and
+  out-of-range coordinates before a segment can be committed.
+- **Efficient review:** keep one canonical book per source file, use a
+  dependency-free runtime, and keep generation deterministic.
+- **Source integrity:** retain source-derived lexical evidence without copying
+  the wording of an existing Bible edition.
+
+The `books/` directory is the primary project artifact. Generation, conversion,
+and completeness-checking infrastructure is intentionally kept under the
+hidden `.tools/` directory.
 
 ## Scope
 
@@ -26,7 +45,7 @@ narrative rather than serving as a decorative comment layer.
 - No placeholder text, omitted ranges, or "the rest is similar" shortcuts
 - A no-dependency Cargo binary
 
-The readable retelling is split by book so every book can be read and reviewed
+The readable edition is split by book so every book can be read and reviewed
 on its own. Each book contains its chapter prose and the small verse-group
 functions that translate the surrounding source wording into Rust operations.
 The verse groups are not a semantic-only ledger: every canonical verse has its
@@ -141,7 +160,7 @@ tokens remain visible in the subject, objects, and token slices, and
 - The canonical cursor rejects missing, duplicated, out-of-order, and
   out-of-range book, chapter, and verse coordinates.
 
-The project should feel like a gradual translation into Rust. A group may use
+The project should feel like a gradual modernization into Rust. A group may use
 several operations, but a group function must never collapse its verses into a
 single summary string, a semantic-only record, or a range that hides the
 individual verse operations.
@@ -158,7 +177,7 @@ cargo clippy -- -D warnings
 cargo run --quiet
 ```
 
-The binary prints the complete retelling in canonical order. A successful run
+The binary prints the complete edition in canonical order. A successful run
 must finish with all 66 books, 1,189 chapters, and 31,102 verses committed and
 the final state `Renewed`.
 
@@ -168,7 +187,7 @@ Generation is book-aware. The generator reads the canonical coordinates and
 source wording, then writes only the 66 book files under `books/`. For each
 book it must:
 
-1. Keep chapters in canonical order and emit their original parody prose.
+1. Keep chapters in canonical order and emit their original edition prose.
 2. Create explicit verse-group functions for contiguous groups of three to
    five verses, representing a short canonical tail explicitly when needed.
 3. Emit one direct typed operation per verse inside the group.
@@ -180,7 +199,7 @@ book it must:
 The book-generator entry point is invoked with the local versification source:
 
 ```sh
-node tools/generate_verse_rust.mjs /tmp/rustament-source/kjv.json
+node .tools/generate_verse_rust.mjs /tmp/holy-bible-in-rust-source/kjv.json
 cargo fmt
 ```
 
@@ -192,7 +211,7 @@ generator and verifier enforce the same book-level contract described here.
 Run the completeness verifier before treating a generated edition as finished:
 
 ```sh
-node verify-completeness.mjs
+node .tools/verify-completeness.mjs
 ```
 
 The verifier must prove all of the following:
@@ -211,10 +230,10 @@ The verifier must prove all of the following:
 The complete acceptance pass is:
 
 ```sh
-node verify-completeness.mjs
+node .tools/verify-completeness.mjs
 cargo fmt -- --check
 cargo check
 cargo test --quiet
 cargo clippy -- -D warnings
-cargo run --quiet > /tmp/rustament-output.txt
+cargo run --quiet > /tmp/holy-bible-in-rust-output.txt
 ```

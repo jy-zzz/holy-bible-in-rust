@@ -4,9 +4,10 @@ import { execFileSync } from "node:child_process";
 
 const root = path.resolve(path.dirname(new URL(import.meta.url).pathname), "..");
 const booksRoot = path.join(root, "books");
-const sourcePath = process.argv[2] || "/tmp/rustament-source/kjv.json";
+const sourcePath =
+  process.argv[2] || "/tmp/holy-bible-in-rust-source/kjv.json";
 const canonPath = path.join(root, "canon.json");
-const rustamentPath = path.join(root, "rustament.rs");
+const holyBibleInRustPath = path.join(root, "holy_bible_in_rust.rs");
 const canon = JSON.parse(fs.readFileSync(canonPath, "utf8"));
 const source = JSON.parse(fs.readFileSync(sourcePath, "utf8"));
 const legacyPartitionFiles = [
@@ -561,11 +562,13 @@ for (const { targetFile, output } of renderedBooks) {
 }
 
 function updateRootModuleWiring() {
-  const sourceText = fs.readFileSync(rustamentPath, "utf8");
+  const sourceText = fs.readFileSync(holyBibleInRustPath, "utf8");
   const firstModule = sourceText.indexOf("#[path =");
   const verseCounts = sourceText.indexOf("mod verse_counts;", firstModule);
   if (firstModule === -1 || verseCounts === -1) {
-    throw new Error("rustament.rs: could not locate the book module wiring block");
+    throw new Error(
+      "holy_bible_in_rust.rs: could not locate the book module wiring block",
+    );
   }
 
   const moduleLines = canon.books
@@ -581,14 +584,16 @@ function updateRootModuleWiring() {
   const firstApply = updated.indexOf("\n    book", wholeStory);
   const applyEnd = updated.indexOf("\n\n    if story.chapters", firstApply);
   if (wholeStory === -1 || firstApply === -1 || applyEnd === -1) {
-    throw new Error("rustament.rs: could not locate the whole_story book application block");
+    throw new Error(
+      "holy_bible_in_rust.rs: could not locate the whole_story book application block",
+    );
   }
   const applyLines = canon.books
     .map((book) => `    ${moduleIdentifier(book.name)}::apply(&mut story)?;`)
     .join("\n");
   updated = `${updated.slice(0, firstApply + 1)}${applyLines}${updated.slice(applyEnd)}`;
 
-  if (updated !== sourceText) fs.writeFileSync(rustamentPath, updated);
+  if (updated !== sourceText) fs.writeFileSync(holyBibleInRustPath, updated);
 }
 
 updateRootModuleWiring();
@@ -615,10 +620,14 @@ const countsPath = path.join(root, "verse_counts.rs");
 fs.writeFileSync(countsPath, countsSource.join("\n"));
 
 const generatedPaths = renderedBooks.map(({ targetFile }) => path.join(root, targetFile));
-execFileSync("rustfmt", ["--edition", "2021", rustamentPath, ...generatedPaths, countsPath], {
-  cwd: root,
-  stdio: "inherit",
-});
+execFileSync(
+  "rustfmt",
+  ["--edition", "2021", holyBibleInRustPath, ...generatedPaths, countsPath],
+  {
+    cwd: root,
+    stdio: "inherit",
+  },
+);
 const largest = generatedPaths.reduce((largestPath, candidate) =>
   fs.statSync(candidate).size > fs.statSync(largestPath).size ? candidate : largestPath,
 );

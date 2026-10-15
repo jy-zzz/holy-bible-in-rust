@@ -1,11 +1,13 @@
 import fs from "node:fs";
 import path from "node:path";
 
-const root = path.dirname(new URL(import.meta.url).pathname);
+const root = path.resolve(path.dirname(new URL(import.meta.url).pathname), "..");
 const canon = JSON.parse(fs.readFileSync(path.join(root, "canon.json"), "utf8"));
 const failures = [];
 const sourcePath =
-  process.argv[2] || process.env.RUSTAMENT_SOURCE || "/tmp/rustament-source/kjv.json";
+  process.argv[2] ||
+  process.env.HOLY_BIBLE_IN_RUST_SOURCE ||
+  "/tmp/holy-bible-in-rust-source/kjv.json";
 const allowedOperations = new Set([
   "construct",
   "move_value",
@@ -481,13 +483,13 @@ for (const file of stalePartitions) {
 }
 if (fs.existsSync(path.join(root, "verses"))) failures.push("stale verses/ directory exists");
 
-const rustamentPath = path.join(root, "rustament.rs");
-if (!fs.existsSync(rustamentPath)) {
-  failures.push("missing rustament.rs");
+const holyBibleInRustPath = path.join(root, "holy_bible_in_rust.rs");
+if (!fs.existsSync(holyBibleInRustPath)) {
+  failures.push("missing holy_bible_in_rust.rs");
 } else {
-  const rustamentSource = fs.readFileSync(rustamentPath, "utf8");
+  const holyBibleInRustSource = fs.readFileSync(holyBibleInRustPath, "utf8");
   const wiring = [
-    ...rustamentSource.matchAll(
+    ...holyBibleInRustSource.matchAll(
       /#\[\s*path\s*=\s*"([^"]+)"\s*\]\s*mod\s+(book_[A-Za-z0-9_]+)\s*;/g,
     ),
   ].map((match) => ({ file: match[1], module: match[2] }));
@@ -502,14 +504,18 @@ if (!fs.existsSync(rustamentPath)) {
     new Set(wiringKeys).size !== wiringKeys.length ||
     wiringKeys.some((key, index) => key !== expectedWiringKeys[index])
   ) {
-    failures.push("rustament.rs: expected exactly 66 canonical book modules in order");
+    failures.push(
+      "holy_bible_in_rust.rs: expected exactly 66 canonical book modules in order",
+    );
   }
-  if (/verses\/|new_testament_|old_testament_/.test(rustamentSource)) {
-    failures.push("rustament.rs: stale verse or eight-way partition wiring remains");
+  if (/verses\/|new_testament_|old_testament_/.test(holyBibleInRustSource)) {
+    failures.push(
+      "holy_bible_in_rust.rs: stale verse or eight-way partition wiring remains",
+    );
   }
 
   const applyCalls = [
-    ...rustamentSource.matchAll(
+    ...holyBibleInRustSource.matchAll(
       /\bbook_[A-Za-z0-9_]+::apply\(\s*&mut\s+story\s*\)\s*\?\s*;/g,
     ),
   ].map((match) => match[0].match(/\b(book_[A-Za-z0-9_]+)::apply/)[1]);
@@ -518,7 +524,9 @@ if (!fs.existsSync(rustamentPath)) {
     applyCalls.length !== expectedApplyCalls.length ||
     applyCalls.some((name, index) => name !== expectedApplyCalls[index])
   ) {
-    failures.push("rustament.rs: whole_story must apply all 66 books in canonical order");
+    failures.push(
+      "holy_bible_in_rust.rs: whole_story must apply all 66 books in canonical order",
+    );
   }
 }
 

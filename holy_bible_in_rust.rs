@@ -1007,10 +1007,10 @@ impl Story {
     }
 
     fn render(&self) {
-        println!("THE RUSTAMENT");
+        println!("HOLY BIBLE IN RUST");
         println!("==============");
         println!(
-            "A complete, non-devotional Rust parody: {} chapters, {} verse steps in {} segments, final state `{:?}`.",
+            "A complete, secure, AI-native Rust edition: {} chapters, {} verse steps in {} segments, final state `{:?}`.",
             self.chapters.len(),
             self.verse_count(),
             self.segments.len(),
@@ -1261,7 +1261,7 @@ fn main() {
     match whole_story() {
         Ok(story) => story.render(),
         Err(error) => {
-            eprintln!("Rustament failed its canonical build: {error}");
+            eprintln!("Holy Bible in Rust failed its canonical build: {error}");
             std::process::exit(1);
         }
     }
